@@ -18,11 +18,16 @@ const createItems = (items, numItems) => {
 };
 
 //delete item
-const addToShopCart = (element, price, title) => {};
 
 // add item
 let items = [];
 let counter = 0;
+
+const createButtons = () => {
+  $("#button-container").html(
+    `<button class="btn btn-warning">Delete all items</button><button class="btn btn-success">Continue</button>`
+  );
+};
 
 const getCounterItem = (itemsArr, id) => {
   let counterItem = 1;
@@ -33,6 +38,16 @@ const getCounterItem = (itemsArr, id) => {
   }
   return counterItem;
 };
+
+const getTotalPrice = () => {
+  const itemsInCart = $(".price-item");
+  let totalPrice = 0;
+  for (let i = 0; i < itemsInCart.length; i++) {
+    totalPrice += parseFloat(itemsInCart[i].innerHTML.split("$")[1]);
+  }
+  $("#total-price").html("$" + totalPrice.toFixed(2));
+};
+
 const createTable = () => {
   $("#table-container").html(` <table class="table" id="delete-item">
                                     <thead>
@@ -45,8 +60,18 @@ const createTable = () => {
                                     </tr>
                                     </thead>
                                     <tbody id="table-body"></tbody>
-                                    <tfoot id="table-footer"></tfoot>
-                                </table>`);
+                                    <tfoot id="table-footer">
+                                      <th>Subtotal</th>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                      <td id="total-price"><td>
+                                    </tfoot>
+                                </table>
+                                <div id="button-container" class="w-100 d-flex justify-content-between"></div>`);
+  createButtons();
+
+  // event handler
   $("#delete-item").on("click", ".delete-element", function (event) {
     let itemId = $(this).attr("data-item-id");
     items = items.filter((item) => item.id !== itemId);
@@ -58,30 +83,43 @@ const createTable = () => {
 };
 
 const displayItems = () => {
-  createTable();
-  for (const key in items) {
-    console.log(key);
-    const { name, price, id, counterItem } = items[key];
-    if (counterItem >= 2) {
-      $(`#${id}`).html(`
+  if (items.length === 0) {
+    $("#button-container").addClass("d-none");
+    $("#counter").hide();
+    $("#delete-item").hide();
+
+    $("#dummy-text").show();
+  } else {
+    $("#counter").show();
+    $("#dummy-text").hide();
+    createTable();
+    for (const key in items) {
+      console.log(key);
+      const { name, price, id, counterItem } = items[key];
+      if (counterItem >= 2) {
+        $(`#${id}`).html(`
                 <th><svg xmlns="http://www.w3.org/2000/svg" style="height: 2rem; cursor:pointer;" class="text-danger delete-element cursor-pointer" viewBox="0 0 20 20" fill="currentColor" data-item-id="${id}">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
                 </svg></th>
             <th scope="row">${name}</th>
             <td>${counterItem}</td>
-            <td>${price}</td>
-            <td>${counterItem * price}</td>`);
-    } else {
-      $("#table-body").append(`<tr id="${id}">
+            <td>$${price}</td>
+            <td class="price-item">$${counterItem * price}</td>`);
+      } else {
+        $("#table-body").append(`<tr id="${id}">
                                         <th><svg xmlns="http://www.w3.org/2000/svg" style="height: 2rem; cursor:pointer;" class="text-danger delete-element cursor-pointer" viewBox="0 0 20 20" fill="currentColor" data-item-id="${id}">
                                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
                                         </svg></th>
                                     <th scope="row">${name}</th>
                                     <td>${counterItem}</td>
-                                    <td>${price}</td>
-                                    <td>${counterItem * price}</td>
+                                    <td>$${price}</td>
+                                    <td class="price-item">$${
+                                      counterItem * price
+                                    }</td>
                                 </tr>`);
+      }
     }
+    getTotalPrice();
   }
 };
 $("#items").on("click", ".add-cart", function (event) {
@@ -105,10 +143,20 @@ $("#items").on("click", ".add-cart", function (event) {
   $("#counter").html(`${counter}`);
 });
 
-async function getCardInformation() {
-  const jsonObject = await fetch(`https://fakestoreapi.com/products`);
-  const data = await jsonObject.json();
-  createItems(data, 5);
+function getCardInformation() {
+  fetch(`https://fakestoreapi.com/products`)
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error("Something went wrong");
+    })
+    .then((data) => {
+      createItems(data, 5);
+    })
+    .catch((error) => {
+      $("#items").html(`<div class="fs-1 text-danger">${error}</div>`);
+    });
 }
 $(document).ready(function () {
   getCardInformation();
