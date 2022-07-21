@@ -12,19 +12,25 @@ class Catalog {
   createItems(items) {
     for (let key of items) {
       const { id, image, title, price, description } = key;
-      const html = `<div class="card" id="${id}_card" style="width: 26rem">
-                      <div class="p-5"><img src="${image}" class="card-img-top" alt="..." /></div>
-                      <div class="card-body">
-                      <div class="price fs-3 my-5">Price: $${price}</div>
-                      <h5 class="card-title">${title}</h5>
-                      <p class="card-text">
-                          ${description}
-                      </p>
-                      <button id="${id}_button" class="btn btn-primary add-cart" data-item="${title}" data-price="${price}" data-id="${id}">Add to cart</a>
+      const html = `<div class="col-lg-4 col-md-6 col-12 mb-4" id="${id}_card">
+                      <div class="card">
+                        <div class="p-5"><img src="${image}" class="card-img-top" alt="..." /></div>
+                        <div class="card-body">
+                        <div class="price fs-3 my-5">Price: $${price}</div>
+                        <h5 class="card-title">${title}</h5>
+                        <p class="card-text">
+                            ${description}
+                        </p>
+                        <button id="${id}_button" class="btn btn-primary add-cart" data-item="${title}" data-price="${price}" data-id="${id}">Add to cart</a>
+                        </div>
                       </div>
                     </div>`;
       $("#items").append(html);
     }
+    let catalog_container = document.getElementById("items"); // assuming your target is <div class='row' id='catalog'>
+    $(catalog_container).imagesLoaded(function () {
+      let msnry = new Masonry(catalog_container); // this initializes the masonry container AFTER the product images are loaded
+    });
     this.add_event_handler();
   }
 
