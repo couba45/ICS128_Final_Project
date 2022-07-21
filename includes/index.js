@@ -56,12 +56,10 @@ class Catalog {
     });
   };
 
-  createButtons = () => {
-    $("#button-container").html(
-      `<button id="delete-all-items"class="btn btn-warning">Delete all items</button><button class="btn btn-success">Continue</button>`
-    );
+  /*createButtons = () => {
+    
     this.addButtonEventListeners();
-  };
+  };*/
 
   createTable = () => {
     //create buttons
@@ -85,8 +83,8 @@ class Catalog {
                                         <td id="total-price"><td>
                                       </tfoot>
                                   </table>
-                                  <div id="button-container" class="w-100 d-flex justify-content-between"></div>`);
-    this.createButtons();
+                                  `);
+    this.addButtonEventListeners();
   };
 
   // display items
@@ -152,6 +150,8 @@ class Catalog {
     // event handler
     $(".add-cart").click((e) => {
       $("#dummy-text").hide();
+      $("#button-container").removeClass("d-none");
+      $("#button-container").addClass("d-flex");
       let product_id = e.target.getAttribute("data-id");
       console.log(product_id);
       let cart_items = get_cookie("shopping_cart_items");
@@ -168,7 +168,10 @@ class Catalog {
       this.setCounter();
     });
     $("#view-cart").click(() => {
-      this.displayItems();
+      let cart_items = get_cookie("shopping_cart_items");
+      if (Object.keys(cart_items).length > 0) {
+        this.displayItems();
+      }
     });
   }
 
