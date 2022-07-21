@@ -84,7 +84,7 @@ class Catalog {
                                         </tfoot>
                                     </table>
                                     <div id="button-container" class="w-100 d-flex justify-content-between"></div>`);
-      /* this.createButtons(); */
+      this.createButtons();
     };
     let displayItems = () => {
       createTable();
@@ -121,6 +121,7 @@ class Catalog {
           if (Object.keys(items_in_cart).length === 0) {
             $("#dummy-text").show();
             $("#delete-item").hide();
+            $("#button-container").addClass("d-none");
           }
         });
       });
