@@ -47,16 +47,16 @@ class Catalog {
     return counterItem;
   };
 
-  getTotalPrice() {
-    const itemsInCart = $(".price-item");
-    let totalPrice = 0;
-    for (let i = 0; i < itemsInCart.length; i++) {
-      totalPrice += parseFloat(itemsInCart[i].innerHTML.split("$")[1]);
-    }
-    $("#total-price").html("$" + totalPrice.toFixed(2));
-  }
-
   add_event_handler() {
+    let getTotalPrice = () => {
+      const itemsInCart = $(".price-item");
+      let totalPrice = 0;
+      for (let i = 0; i < itemsInCart.length; i++) {
+        totalPrice += parseFloat(itemsInCart[i].innerHTML.split("$")[1]);
+      }
+      $("#total-price").html("$" + totalPrice.toFixed(2));
+    };
+
     let createTable = () => {
       $("#table-container").html(` <table class="table" id="delete-item">
                                         <thead>
@@ -105,27 +105,29 @@ class Catalog {
           let itemId = $(this).attr("data-item-id");
           console.log("This is the id for delete button" + itemId);
           let items_in_cart = Object.entries(get_cookie("shopping_cart_items"));
+
           items_in_cart = items_in_cart.filter(([key, value]) => key != itemId);
           items_in_cart = Object.fromEntries(items_in_cart);
+
           set_cookie("shopping_cart_items", items_in_cart);
+          console.log(items_in_cart);
           displayItems();
-          /*
-        this.counter = this.items.length;
-        $("#counter").html(`${this.counter}`);
-        this.displayItems(); */
+          if (Object.keys(items_in_cart).length === 0) {
+            $("#dummy-text").show();
+            $("#delete-item").hide();
+          }
         });
       });
-      /* let tableContent = `<tr id="${id}">
-                              <th><svg xmlns="http://www.w3.org/2000/svg" style="height: 2rem; cursor:pointer;" class="text-danger delete-element cursor-pointer" viewBox="0 0 20 20" fill="currentColor" data-item-id="${id}">
-                                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                              </svg></th>
-                              <th scope="row">${name}</th>
-                              <td>${counterItem}</td>
-                              <td>$${price}</td>
-                              <td class="price-item">$${
-                                counterItem * price
-                              }</td>
-                          </tr>` */
+      let itemsArr = Object.entries(get_cookie("shopping_cart_items"));
+      itemsArr = itemsArr.forEach(([key, value]) => (this.counter += value));
+      if (this.counter === 0) {
+        $("#counter").hide();
+      } else {
+        $("#counter").show();
+        $("#counter").html(this.counter);
+      }
+      this.counter = 0;
+      getTotalPrice();
     };
     $(".add-cart").click(function () {
       $("#dummy-text").hide();
