@@ -45,7 +45,20 @@
             ></button>
           </div>
           <div class="offcanvas-body">
-            <div id="dummy-text">Your shopping cart is currently empty</div>
+            <div id="dummy-text" class="mb-3">
+              Your shopping cart is currently empty
+            </div>
+            <div class="input-group mb-3">
+              <label class="input-group-text" for="input-currency"
+                >Currency:</label
+              >
+              <select class="form-select" id="input-currency">
+                <option value="cad" selected>Canadian $</option>
+                <option value="usd">United States $</option>
+                <option value="gbp">British Pound</option>
+              </select>
+            </div>
+
             <div id="table-container"></div>
             <div
               id="button-container"
@@ -86,7 +99,11 @@
             ></button>
           </div>
           <div class="modal-body">
-            <ul class="nav nav-pills mb-3 gap-1" id="pills-tab" role="tablist">
+            <ul
+              class="nav nav-pills mb-3 gap-1 justify-content-around"
+              id="pills-tab"
+              role="tablist"
+            >
               <li class="nav-item" role="presentation">
                 <button
                   class="nav-link active"

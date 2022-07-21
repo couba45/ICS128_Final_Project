@@ -1,13 +1,18 @@
 // get the items
 
 class Catalog {
+  currency_symbol = "$";
+  change_currency = 1;
   items = [];
   items_catalog = [];
   cookies = [];
   counter = 0;
   API_URL = "https://fakestoreapi.com/products";
+  CURR_API =
+    "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/cad.json";
   constructor() {
     this.getCardInformation();
+    this.getCurrencyInformation();
   }
   createItems(items) {
     for (let key of items) {
@@ -16,15 +21,16 @@ class Catalog {
                       <div class="card">
                         <div class="p-5"><img src="${image}" class="card-img-top" alt="..." /></div>
                         <div class="card-body">
-                        <div class="price fs-3 my-5">Price: $${price.toFixed(
-                          2
-                        )}</div>
+                        <div class="fs-3 my-5">Price: <span class="currency-symbol">$</span><span id="${id}_product_price" class="price" data-price-product="${price.toFixed(
+        2
+      )}">${price.toFixed(2)}</span></div>
                         <h5 class="card-title">${title}</h5>
                         <p class="card-text">
                             ${description}
                         </p>
-                        <button id="${id}_button" class="btn btn-primary add-cart" data-item="${title}" data-price="${price}" data-id="${id}">Add to cart</a>
-                        </div>
+                        <button id="${id}_button" 
+                                class="btn btn-primary add-cart" data-item="${title}" 
+                                data-id="${id}">Add to Cart</button>
                       </div>
                     </div>`;
       $("#items").append(html);
@@ -42,10 +48,10 @@ class Catalog {
   getTotalPrice = () => {
     const itemsInCart = $(".price-item");
     let totalPrice = 0;
-    for (let i = 0; i < itemsInCart.length; i++) {
-      totalPrice += parseFloat(itemsInCart[i].innerHTML.split("$")[1]);
-    }
-    $("#total-price").html("$" + totalPrice.toFixed(2));
+    itemsInCart.each(function () {
+      totalPrice += parseFloat($(this).text());
+    });
+    $("#total-price").html(this.currency_symbol + totalPrice.toFixed(2));
   };
 
   // create table
@@ -96,16 +102,25 @@ class Catalog {
     id_products.forEach((id) => {
       console.log(items_in_cart);
       let { title, price } = this.items_catalog[id - 1];
+      let priceItems = (price * this.change_currency).toFixed(2);
       let tableContent = `<tr id="${id}">
                             <th class="delete-element"><svg xmlns="http://www.w3.org/2000/svg" style="height: 2rem; cursor:pointer;" class="text-danger cursor-pointer" viewBox="0 0 20 20" fill="currentColor" data-item-id="${id}">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" data-item-id="${id}"/>
                             </svg></th>
                             <th scope="row">${title}</th>
                             <td>${items_in_cart[id]}</td>
-                            <td>$${price}</td>
-                            <td class="price-item">$${
-                              items_in_cart[id] * price
-                            }</td>
+                            <td>
+                              <span class="currency-symbol">${
+                                this.currency_symbol
+                              }</span><span class="price" data-price-product="${price}">${priceItems}</span></td>
+                            <td>
+                              <span class="currency-symbol">${
+                                this.currency_symbol
+                              }</span><span class="price-item price" data-price-product="${
+        items_in_cart[id] * price
+      }">${items_in_cart[id] * priceItems}
+                              </span>
+                            </td>
                         </tr>`;
       $("#table-body").append(tableContent);
       // event handler
@@ -167,11 +182,35 @@ class Catalog {
       set_cookie("shopping_cart_items", cart_items);
       this.setCounter();
     });
+    // view cart event handler
     $("#view-cart").click(() => {
       let cart_items = get_cookie("shopping_cart_items");
       if (Object.keys(cart_items).length > 0) {
         this.displayItems();
       }
+    });
+  }
+  addCurrencyEventListener(currencyArr) {
+    $("#input-currency").on("change", (e) => {
+      let currency_val = e.target.value;
+      let value_currency = currencyArr.cad[currency_val];
+
+      this.change_currency = value_currency;
+      $(".price").each(function (index) {
+        let price_product = $(this).attr("data-price-product");
+        let final_price = price_product * value_currency;
+        $(this).html(final_price.toFixed(2));
+      });
+
+      if (currency_val === "gbp") {
+        this.currency_symbol = "£";
+        $(".currency-symbol").html("£");
+      } else {
+        this.currency_symbol = "$";
+        $(".currency-symbol").html("$");
+      }
+
+      this.getTotalPrice();
     });
   }
 
@@ -191,6 +230,14 @@ class Catalog {
       })
       .catch((error) => {
         $("#items").html(`<div class="fs-1 text-danger">${error}</div>`);
+      });
+  }
+
+  getCurrencyInformation() {
+    fetch(this.CURR_API)
+      .then((response) => response.json())
+      .then((data) => {
+        this.addCurrencyEventListener(data);
       });
   }
 }
