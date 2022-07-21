@@ -37,11 +37,6 @@ class Catalog {
   //delete item
 
   // add item
-  createButtons() {
-    $("#button-container").html(
-      `<button class="btn btn-warning">Delete all items</button><button class="btn btn-success">Continue</button>`
-    );
-  }
 
   getCounterItem = (itemsArr, id) => {
     let counterItem = 1;
@@ -54,6 +49,7 @@ class Catalog {
   };
 
   add_event_handler() {
+    // get total price
     let getTotalPrice = () => {
       const itemsInCart = $(".price-item");
       let totalPrice = 0;
@@ -63,7 +59,22 @@ class Catalog {
       $("#total-price").html("$" + totalPrice.toFixed(2));
     };
 
+    // create table
     let createTable = () => {
+      let addButtonEventListeners = () => {
+        $("#delete-all-items").click(function () {
+          set_cookie("shopping_cart_items", {});
+          displayItems();
+        });
+      };
+
+      //create buttons
+      let createButtons = () => {
+        $("#button-container").html(
+          `<button id="delete-all-items"class="btn btn-warning">Delete all items</button><button class="btn btn-success">Continue</button>`
+        );
+        addButtonEventListeners();
+      };
       $("#table-container").html(` <table class="table" id="delete-item">
                                         <thead>
                                         <tr>
@@ -84,8 +95,10 @@ class Catalog {
                                         </tfoot>
                                     </table>
                                     <div id="button-container" class="w-100 d-flex justify-content-between"></div>`);
-      this.createButtons();
+      createButtons();
     };
+
+    // display items
     let displayItems = () => {
       createTable();
       let items_in_cart = get_cookie("shopping_cart_items");
@@ -110,10 +123,8 @@ class Catalog {
         $(".delete-element").click(function (event) {
           let itemId = $(this).attr("data-item-id");
           console.log("This is the id for delete button" + itemId);
-          let items_in_cart = Object.entries(get_cookie("shopping_cart_items"));
-
-          items_in_cart = items_in_cart.filter(([key, value]) => key != itemId);
-          items_in_cart = Object.fromEntries(items_in_cart);
+          let items_in_cart = get_cookie("shopping_cart_items");
+          delete items_in_cart[itemId];
 
           set_cookie("shopping_cart_items", items_in_cart);
           console.log(items_in_cart);
@@ -135,7 +146,14 @@ class Catalog {
       }
       this.counter = 0;
       getTotalPrice();
+      if (Object.keys(items_in_cart).length === 0) {
+        $("#dummy-text").show();
+        $("#delete-item").hide();
+        $("#button-container").addClass("d-none");
+      }
     };
+
+    // event handler
     $(".add-cart").click(function () {
       $("#dummy-text").hide();
       let product_id = $(this).attr("data-id");
