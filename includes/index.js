@@ -8,6 +8,8 @@ class Catalog {
   cookies = [];
   counter = 0;
   API_URL = "https://fakestoreapi.com/products";
+  BACK_UP_API_URL =
+    "https://deepblue.camosun.bc.ca/~c0180354/ics128/final/fakestoreapi.json";
   CURR_API =
     "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/cad.json";
   constructor() {
@@ -118,7 +120,7 @@ class Catalog {
                                 this.currency_symbol
                               }</span><span class="price-item price" data-price-product="${
         items_in_cart[id] * price
-      }">${items_in_cart[id] * priceItems}
+      }">${(items_in_cart[id] * priceItems).toFixed(2)}
                               </span>
                             </td>
                         </tr>`;
@@ -215,7 +217,30 @@ class Catalog {
   }
 
   // finished
+  displayLoading() {
+    $("#loading").addClass("display");
+    // to stop loading after some time
+  }
+  getBackupInformation() {
+    fetch(this.BACK_UP_API_URL)
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        throw new Error("Something went wrong");
+      })
+      .then((data) => {
+        $("#loading").removeClass("display");
+        $("#loading-container").addClass("d-none");
+        this.items_catalog = data;
+        this.createItems(data);
+      })
+      .catch((error) => {
+        $("#items").html(`<div class="fs-1 text-danger">${error}</div>`);
+      });
+  }
   getCardInformation() {
+    this.displayLoading();
     fetch(this.API_URL)
       .then((response) => {
         if (response.ok) {
@@ -224,12 +249,15 @@ class Catalog {
         throw new Error("Something went wrong");
       })
       .then((data) => {
+        $("#loading").removeClass("display");
+        $("#loading-container").addClass("d-none");
+
         this.items_catalog = data;
         console.log(this.items_catalog);
         this.createItems(data);
       })
       .catch((error) => {
-        $("#items").html(`<div class="fs-1 text-danger">${error}</div>`);
+        this.getBackupInformation();
       });
   }
 

@@ -3,3 +3,25 @@
   top: -5px !important;
   right: -9px !important;
 }
+
+#loading {
+  width: 4rem;
+  height: 4rem;
+  border: 9px solid #f3f3f3;
+  border-top: 6px solid #0239ff;
+  border-radius: 100%;
+  margin: auto;
+  visibility: hidden;
+  animation: spin 1s infinite linear;
+}
+#loading.display {
+  visibility: visible;
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

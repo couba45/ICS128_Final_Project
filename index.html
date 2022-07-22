@@ -81,6 +81,13 @@
       </div>
     </nav>
     <div
+      id="loading-container"
+      class="mt-5 container h-screen d-flex justify-content-between align-items-center"
+      style="height: 100vh !important"
+    >
+      <div id="loading"></div>
+    </div>
+    <div
       class="modal fade modal-lg"
       id="exampleModal"
       tabindex="-1"
@@ -90,7 +97,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Checkout</h5>
             <button
               type="button"
               class="btn-close"
@@ -117,7 +124,7 @@
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="me-2"
+                    class="me-md-2"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -130,7 +137,7 @@
                       d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
                     />
                   </svg>
-                  Payment Method
+                  <span class="d-none d-md-inline">Payment Method</span>
                 </button>
               </li>
               <li class="nav-item" role="presentation">
@@ -146,7 +153,7 @@
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="me-2"
+                    class="me-md-2"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -160,7 +167,7 @@
                     />
                   </svg>
 
-                  Billing Details
+                  <span class="d-none d-md-inline">Billing Details</span>
                 </button>
               </li>
               <li class="nav-item" role="presentation">
@@ -176,7 +183,7 @@
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="me-2"
+                    class="me-md-2"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -192,7 +199,7 @@
                       d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
                     />
                   </svg>
-                  Shipping Details
+                  <span class="d-none d-md-inline">Shipping Details</span>
                 </button>
               </li>
               <li class="nav-item" role="presentation">
@@ -208,7 +215,7 @@
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="me-2"
+                    class="me-md-2"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -221,7 +228,7 @@
                       d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                     />
                   </svg>
-                  Order Confirmation
+                  <span class="d-none d-md-inline">Order Confirmation</span>
                 </button>
               </li>
             </ul>
@@ -233,13 +240,16 @@
                 aria-labelledby="pills-home-tab"
                 tabindex="0"
               >
-                ...
+                These is a text after the first pill
+                <div class="modal-footer">
+                  <button class="btn btn-primary">Sample button</button>
+                </div>
               </div>
               <div
                 class="tab-pane fade"
                 id="pills-profile"
                 role="tabpanel"
-                aria-labelledby="pills-profile-tab"
+                aria-labelledby="billing-button"
                 tabindex="0"
               >
                 ...
@@ -264,7 +274,7 @@
               </div>
             </div>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer d-none">
             <button
               type="button"
               class="btn btn-secondary"
