@@ -1,6 +1,7 @@
 // get the items
 
 class Catalog {
+  validateModal = [false, false, false, false];
   currency_symbol = "$";
   change_currency = 1;
   items = [];
@@ -51,7 +52,7 @@ class Catalog {
       $("#expiration-month").addClass("is-invalid");
       $("#expiration-month").removeClass("is-valid");
       let tooltip = new bootstrap.Tooltip("#expiration-month", {
-        title: "Invalid year",
+        title: "Invalid month",
       });
       return false;
     }
@@ -68,7 +69,7 @@ class Catalog {
       $("#expiration-year").addClass("is-invalid");
       $("#expiration-year").removeClass("is-valid");
       let tooltip = new bootstrap.Tooltip("#expiration-year", {
-        title: "Invalid month",
+        title: "Invalid year",
       });
       return false;
     }
@@ -109,7 +110,7 @@ class Catalog {
     }
   }
   validateSecurityCode() {
-    let validCVV = /[0-9]{3}/;
+    let validCVV = /\b[0-9]{3}\b/;
     let CVV = $("#security-code").val();
     if (CVV.match(validCVV)) {
       $("#security-code").removeClass("is-invalid");
@@ -139,6 +140,11 @@ class Catalog {
       e.preventDefault();
       if (this.validatePayment()) {
         $("#pills-profile-tab").click();
+        this.validateModal[0] = true;
+        console.log(this.validateModal);
+      } else {
+        this.validateModal[0] = false;
+        console.log(this.validateModal);
       }
     });
   }

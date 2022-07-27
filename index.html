@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <nav class="navbar bg-light fixed-top px-4">
+    <nav class="navbar bg-light fixed-top p-4">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">ICS128 Final project</a>
         <button
@@ -302,7 +302,121 @@
                 aria-labelledby="billing-button"
                 tabindex="0"
               >
-                ...
+                <h1 class="mb-4">Billing Information</h1>
+                <form class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="user-name" class="form-label">First Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="user-name"
+                      placeholder="First Name"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="user-lastname" class="form-label"
+                      >Last Name</label
+                    >
+                    <input
+                      type="text"
+                      id="user-lastname"
+                      class="form-control"
+                      placeholder="Last Name"
+                    />
+                  </div>
+                  <div class="col-md-12 mb-3">
+                    <label for="billing-addrs-01" class="form-label"
+                      >Billing Address</label
+                    >
+                    <input
+                      type="text"
+                      id="billing-addrs-01"
+                      class="form-control"
+                      placeholder="Billing Address"
+                    />
+                  </div>
+                  <div class="col-md-12 mb-3">
+                    <label for="billing-addrs-02" class="form-label"
+                      >Billing Address Line 2</label
+                    >
+                    <input
+                      type="text"
+                      name=""
+                      id="billing-addrs-02"
+                      class="form-control"
+                      placeholder="Billing Address"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="city" class="form-label">City</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="city"
+                      placeholder="City"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="province-state" class="form-label"
+                      >Province/State</label
+                    >
+                    <input
+                      type="text"
+                      name=""
+                      id="province-state"
+                      class="form-control"
+                      placeholder="Province"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="country" class="form-label">Country</label>
+                    <input
+                      type="text"
+                      name=""
+                      id="country"
+                      class="form-control"
+                      placeholder="Choose Country"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="postal-code" class="form-label"
+                      >Postal Code/ZIP</label
+                    >
+                    <input
+                      type="text"
+                      id="postal-code"
+                      class="form-control"
+                      placeholder="V1V 1V1 / 12345"
+                    />
+                  </div>
+                  <div class="col-md-12 mb-3">
+                    <label for="user-phone" class="form-label">Phone</label>
+                    <input
+                      type="text"
+                      name=""
+                      id="user-phone"
+                      class="form-control"
+                      placeholder="(250) 555-1234"
+                    />
+                  </div>
+                  <div class="col-md-12 mb-5">
+                    <label for="user-email" class="form-label"
+                      >Email Address</label
+                    >
+                    <input
+                      type="text"
+                      name=""
+                      id="user-email"
+                      class="form-control"
+                      placeholder="name@example.com"
+                    />
+                  </div>
+                  <div class="modal-footer">
+                    <button id="validate-billing-addrs" class="btn btn-primary">
+                      Continue
+                    </button>
+                  </div>
+                </form>
               </div>
               <div
                 class="tab-pane fade"
