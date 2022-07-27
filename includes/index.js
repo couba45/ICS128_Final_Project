@@ -15,7 +15,135 @@ class Catalog {
   constructor() {
     this.getCardInformation();
     this.getCurrencyInformation();
+    this.submitButton();
   }
+  // handle modal
+
+  luhnAlgorithm(creditCardNumber) {
+    const lengthNum = creditCardNumber.length;
+    let sum = 0;
+    let tmp;
+    for (let i = lengthNum - 1; i >= 0; i--) {
+      tmp = parseInt(creditCardNumber[i]);
+      if ((i + 2) % 2 === 0) {
+        tmp = tmp * 2;
+        if (tmp > 9) {
+          tmp -= 9;
+        }
+      }
+      sum += tmp;
+    }
+    return sum % 10 === 0;
+  }
+  verifyExMonth(expireMonth, expireYear, today) {
+    if (
+      expireYear >= today.getFullYear() &&
+      expireMonth <= 12 &&
+      expireMonth > today.getMonth() + 1
+    ) {
+      $("#expiration-month").removeClass("is-invalid");
+      $("#expiration-month").addClass("is-valid");
+      if ($("#expiration-month").tooltip != undefined) {
+        $("#expiration-month").tooltip("dispose");
+      }
+      return true;
+    } else {
+      $("#expiration-month").addClass("is-invalid");
+      $("#expiration-month").removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip("#expiration-month", {
+        title: "Invalid year",
+      });
+      return false;
+    }
+  }
+  verifyExYear(expireYear, today) {
+    if (expireYear >= today.getFullYear()) {
+      $("#expiration-year").removeClass("is-invalid");
+      $("#expiration-year").addClass("is-valid");
+      if ($("#expiration-year").tooltip != undefined) {
+        $("#expiration-year").tooltip("dispose");
+      }
+      return true;
+    } else {
+      $("#expiration-year").addClass("is-invalid");
+      $("#expiration-year").removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip("#expiration-year", {
+        title: "Invalid month",
+      });
+      return false;
+    }
+  }
+  validateExpirationDate() {
+    let today = new Date();
+    let expireMonth = Number($("#expiration-month").val());
+    let expireYear = Number($("#expiration-year").val());
+    let resultMonth = this.verifyExMonth(expireMonth, expireYear, today);
+    let resultYear = this.verifyExYear(expireYear, today);
+    return resultMonth && resultYear;
+  }
+
+  validateCardNum() {
+    let cardNumber = $("#card-number");
+    let ccNum = cardNumber.val().split(" ").join("");
+    let visa = /^4[0-9]{12}(?:[0-9]{3})?$/;
+    let amex = /^3[47][0-9]{13}$/;
+    let masterCard =
+      /^(5[1-5][0-9]{14}|2(22[1-9][0-9]{12}|2[3-9][0-9]{13}|[3-6][0-9]{14}|7[0-1][0-9]{13}|720[0-9]{12}))$/;
+    if (
+      (ccNum.match(visa) || ccNum.match(amex) || ccNum.match(masterCard)) &&
+      this.luhnAlgorithm(ccNum)
+    ) {
+      cardNumber.removeClass("is-invalid");
+      cardNumber.addClass("is-valid");
+      if (cardNumber.tooltip != undefined) {
+        cardNumber.tooltip("dispose");
+      }
+      return true;
+    } else {
+      cardNumber.addClass("is-invalid");
+      cardNumber.removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip("#card-number", {
+        title: "Please enter a valid card number",
+      });
+      return false;
+    }
+  }
+  validateSecurityCode() {
+    let validCVV = /[0-9]{3}/;
+    let CVV = $("#security-code").val();
+    if (CVV.match(validCVV)) {
+      $("#security-code").removeClass("is-invalid");
+      $("#security-code").addClass("is-valid");
+      if ($("#security-code").tooltip != undefined) {
+        $("#security-code").tooltip("dispose");
+      }
+      return true;
+    }
+    $("#security-code").addClass("is-invalid");
+    $("#security-code").removeClass("is-valid");
+    let tooltip = new bootstrap.Tooltip("#security-code", {
+      title: "It should contain just 3 digits",
+    });
+    return false;
+  }
+  validatePayment() {
+    let validateCard = this.validateCardNum();
+    let validateExpDate = this.validateExpirationDate();
+    let validateSecurityCode = this.validateSecurityCode();
+
+    let validation = validateCard && validateExpDate && validateSecurityCode;
+    return validation;
+  }
+  submitButton() {
+    $("#validate-payment").click((e) => {
+      e.preventDefault();
+      if (this.validatePayment()) {
+        $("#pills-profile-tab").click();
+      }
+    });
+  }
+
+  // create items in the website
   createItems(items) {
     for (let key of items) {
       const { id, image, title, price, description } = key;

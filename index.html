@@ -240,10 +240,60 @@
                 aria-labelledby="pills-home-tab"
                 tabindex="0"
               >
-                These is a text after the first pill
-                <div class="modal-footer">
-                  <button class="btn btn-primary">Sample button</button>
-                </div>
+                <h1 class="mb-4">Payment Method</h1>
+                <form class="row g-3">
+                  <div class="col-md-12">
+                    <label for="card-number" class="form-label"
+                      >Card Number:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="card-number"
+                      placeholder="4444 1233 3333 1234"
+                    />
+                  </div>
+                  <div class="col-md-8">
+                    <label for="expiration-month" class="form-label"
+                      >Expiration Date</label
+                    >
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="expiration-month"
+                          placeholder="MM"
+                        />
+                      </div>
+                      <div class="col-md-6">
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="expiration-year"
+                          placeholder="YY"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label for="security-code" class="form-label"
+                      >Security Code</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="security-code"
+                      placeholder="123"
+                    />
+                  </div>
+                  <div class="modal-footer">
+                    <button id="validate-payment" class="btn btn-primary">
+                      Continue
+                    </button>
+                  </div>
+                </form>
               </div>
               <div
                 class="tab-pane fade"
