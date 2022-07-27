@@ -17,44 +17,76 @@ class Catalog {
     this.getCardInformation();
     this.getCurrencyInformation();
     this.submitButton();
+    this.createExpYears();
+  }
+
+  renderOrderTable() {
+    let itemArr = get_cookie("shopping_cart_items");
+    let idProducts = Object.keys(itemArr);
+    let numProducts = `<thead><tr>
+    <th scope="col">Item</th>
+    <th scope="col">Qty</th>
+    <th scope="col">Price</th>
+    <th scope="col">Total</th>
+    </tr></thead>`;
+    numProducts += "<tbody>";
+
+    idProducts.forEach((id) => {
+      let { title, price } = this.items_catalog[id - 1];
+      let priceItems = (price * this.change_currency).toFixed(2);
+      numProducts += `<tr>
+        <td>${title}</td>
+        <td>${itemArr[id]}</td>
+        <td>${this.currency_symbol}${priceItems}</td>
+        <td>${this.currency_symbol}${(itemArr[id] * priceItems).toFixed(2)}</td>
+      <tr>`;
+    });
+    numProducts += "</tbody>";
+    $("#final-table").html(numProducts);
   }
   // handle modal
-
-  luhnAlgorithm(creditCardNumber) {
-    const lengthNum = creditCardNumber.length;
-    let sum = 0;
-    let tmp;
-    for (let i = lengthNum - 1; i >= 0; i--) {
-      tmp = parseInt(creditCardNumber[i]);
-      if ((i + 2) % 2 === 0) {
-        tmp = tmp * 2;
-        if (tmp > 9) {
-          tmp -= 9;
-        }
-      }
-      sum += tmp;
+  createExpYears() {
+    let today = new Date();
+    let newYear = today.getFullYear();
+    let optionYears = '<option value="0">YYYY</option>';
+    for (let i = 0; i < 10; i++) {
+      optionYears += `<option value="${newYear + i}">${newYear + i}</option>`;
     }
-    return sum % 10 === 0;
+    $("#expiration-year").html(optionYears);
   }
+
   verifyExMonth(expireMonth, expireYear, today) {
-    if (
-      expireYear >= today.getFullYear() &&
-      expireMonth <= 12 &&
-      expireMonth > today.getMonth() + 1
-    ) {
-      $("#expiration-month").removeClass("is-invalid");
-      $("#expiration-month").addClass("is-valid");
-      if ($("#expiration-month").tooltip != undefined) {
-        $("#expiration-month").tooltip("dispose");
+    console.log(today.getFullYear());
+    if (expireYear == today.getFullYear()) {
+      if (expireMonth > today.getMonth() + 1) {
+        $("#expiration-month").removeClass("is-invalid");
+        $("#expiration-month").addClass("is-valid");
+        if ($("#expiration-month").tooltip != undefined) {
+          $("#expiration-month").tooltip("dispose");
+        }
+        return true;
+      } else {
+        $("#expiration-month").addClass("is-invalid");
+        $("#expiration-month").removeClass("is-valid");
+        let tooltip = new bootstrap.Tooltip("#expiration-month", {
+          title: "Invalid month",
+        });
+        return false;
       }
-      return true;
-    } else {
+    } else if (expireYear == 0) {
       $("#expiration-month").addClass("is-invalid");
       $("#expiration-month").removeClass("is-valid");
       let tooltip = new bootstrap.Tooltip("#expiration-month", {
         title: "Invalid month",
       });
       return false;
+    } else {
+      $("#expiration-month").removeClass("is-invalid");
+      $("#expiration-month").addClass("is-valid");
+      if ($("#expiration-month").tooltip != undefined) {
+        $("#expiration-month").tooltip("dispose");
+      }
+      return true;
     }
   }
   verifyExYear(expireYear, today) {
@@ -76,24 +108,37 @@ class Catalog {
   }
   validateExpirationDate() {
     let today = new Date();
-    let expireMonth = Number($("#expiration-month").val());
-    let expireYear = Number($("#expiration-year").val());
-    let resultMonth = this.verifyExMonth(expireMonth, expireYear, today);
+    let expireMonth = $("#expiration-month option:selected").val();
+
+    let expireYear = $("#expiration-year option:selected").val();
     let resultYear = this.verifyExYear(expireYear, today);
+    let resultMonth = this.verifyExMonth(expireMonth, expireYear, today);
+
     return resultMonth && resultYear;
   }
 
   validateCardNum() {
     let cardNumber = $("#card-number");
-    let ccNum = cardNumber.val().split(" ").join("");
-    let visa = /^4[0-9]{12}(?:[0-9]{3})?$/;
-    let amex = /^3[47][0-9]{13}$/;
+    let num = cardNumber.val();
+    /*
+    let ccNumArr = cardNumber.val().split(" ");
+    console.log(ccNumArr);
+    let ccNum = ccNumArr.join("");
+    if (!(ccNumArr.length <= 4 && ccNumArr.length >= 3)) {
+      cardNumber.addClass("is-invalid");
+      cardNumber.removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip("#card-number", {
+        title:
+          "Please enter card number in the format #### #### #### #### or if it is amex #### ###### #####",
+      });
+      return false;
+    }
+    */
+    let visa = /^4[0-9]{3}[ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}$/;
+    let amex = /^3[47][0-9]{2}[ ][0-9]{6}[ ][0-9]{5}$/;
     let masterCard =
-      /^(5[1-5][0-9]{14}|2(22[1-9][0-9]{12}|2[3-9][0-9]{13}|[3-6][0-9]{14}|7[0-1][0-9]{13}|720[0-9]{12}))$/;
-    if (
-      (ccNum.match(visa) || ccNum.match(amex) || ccNum.match(masterCard)) &&
-      this.luhnAlgorithm(ccNum)
-    ) {
+      /^(5[1-5][0-9]{2}[ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}|2(22[1-9][ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}|2[3-9][0-9][ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}|[3-6][0-9]{2}[ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}|7[0-1][0-9]{1}[ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}|720[ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}))$/;
+    if (num.match(visa) || num.match(amex) || num.match(masterCard)) {
       cardNumber.removeClass("is-invalid");
       cardNumber.addClass("is-valid");
       if (cardNumber.tooltip != undefined) {
@@ -136,12 +181,23 @@ class Catalog {
     return validation;
   }
   submitButton() {
-    $("#validate-payment").click((e) => {
+    $("#shipping-checkbox").change(() => {
+      $("#shipping-address").toggleClass("d-none");
+    });
+    $("#payment-details").submit((e) => {
       e.preventDefault();
       if (this.validatePayment()) {
-        $("#pills-profile-tab").click();
         this.validateModal[0] = true;
         console.log(this.validateModal);
+      } else {
+        this.validateModal[0] = false;
+        console.log(this.validateModal);
+      }
+    });
+    $("#validate-payment").click((e) => {
+      if (this.validatePayment()) {
+        this.validateModal[0] = true;
+        $("#pills-profile-tab").click();
       } else {
         this.validateModal[0] = false;
         console.log(this.validateModal);
@@ -275,6 +331,7 @@ class Catalog {
           $("#button-container").addClass("d-none");
         }
       });
+      this.renderOrderTable();
     });
     this.setCounter();
     this.getTotalPrice();
@@ -347,6 +404,7 @@ class Catalog {
       }
 
       this.getTotalPrice();
+      this.renderOrderTable();
     });
   }
 

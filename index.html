@@ -241,7 +241,7 @@
                 tabindex="0"
               >
                 <h1 class="mb-4">Payment Method</h1>
-                <form class="row g-3">
+                <form id="payment-details" class="row g-3">
                   <div class="col-md-12">
                     <label for="card-number" class="form-label"
                       >Card Number:</label
@@ -259,20 +259,36 @@
                     >
                     <div class="row">
                       <div class="col-md-6 mb-3">
-                        <input
-                          type="text"
-                          class="form-control"
+                        <select
+                          class="form-select"
                           id="expiration-month"
-                          placeholder="MM"
-                        />
+                          aria-label="Floating label select example"
+                        >
+                          <option value="0">MM</option>
+                          <option value="1">01</option>
+                          <option value="2">02</option>
+                          <option value="3">03</option>
+                          <option value="4">04</option>
+                          <option value="5">05</option>
+                          <option value="6">06</option>
+                          <option value="7">07</option>
+                          <option value="8">08</option>
+                          <option value="9">09</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
                       </div>
                       <div class="col-md-6">
-                        <input
-                          type="text"
-                          class="form-control"
+                        <select
+                          class="form-select"
                           id="expiration-year"
-                          placeholder="YY"
-                        />
+                          aria-label="Floating label select example"
+                        >
+                          <option value="2022">2022</option>
+                          <option value="2023">2023</option>
+                          <option value="2024">2024</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -288,12 +304,13 @@
                       placeholder="123"
                     />
                   </div>
-                  <div class="modal-footer">
-                    <button id="validate-payment" class="btn btn-primary">
-                      Continue
-                    </button>
-                  </div>
+                  <button class="d-none"></button>
                 </form>
+                <div class="modal-footer">
+                  <button id="validate-payment" class="btn btn-primary">
+                    Continue
+                  </button>
+                </div>
               </div>
               <div
                 class="tab-pane fade"
@@ -425,7 +442,108 @@
                 aria-labelledby="pills-contact-tab"
                 tabindex="0"
               >
-                ...
+                <h1 class="mb-3">Shipping Information</h1>
+                <input
+                  class="form-check-input mb-5"
+                  type="checkbox"
+                  value=""
+                  id="shipping-checkbox"
+                  checked
+                />
+                <label class="form-check-label" for="shipping-checkbox">
+                  Shipping information is the same as my Billing Details
+                </label>
+                <form id="shipping-address" class="row d-none">
+                  <div class="col-md-6 mb-3">
+                    <label for="user-name-shipping" class="form-label"
+                      >First Name</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="user-name-shipping"
+                      placeholder="First Name"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="user-lastname-shipping" class="form-label"
+                      >Last Name</label
+                    >
+                    <input
+                      type="text"
+                      id="user-lastname-shipping"
+                      class="form-control"
+                      placeholder="Last Name"
+                    />
+                  </div>
+                  <div class="col-md-12 mb-3">
+                    <label for="shipping-addrs-01" class="form-label"
+                      >Billing Address</label
+                    >
+                    <input
+                      type="text"
+                      id="shipping-addrs-01"
+                      class="form-control"
+                      placeholder="Billing Address"
+                    />
+                  </div>
+                  <div class="col-md-12 mb-3">
+                    <label for="shipping-addrs-02" class="form-label"
+                      >Billing Address Line 2</label
+                    >
+                    <input
+                      type="text"
+                      name=""
+                      id="shipping-addrs-02"
+                      class="form-control"
+                      placeholder="Billing Address"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="city-shipping" class="form-label">City</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="city-shipping"
+                      placeholder="City"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="province-state-shipping" class="form-label"
+                      >Province/State</label
+                    >
+                    <input
+                      type="text"
+                      name=""
+                      id="province-state-shipping"
+                      class="form-control"
+                      placeholder="Province"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="country-shipping" class="form-label"
+                      >Country</label
+                    >
+                    <input
+                      type="text"
+                      name=""
+                      id="country-shipping"
+                      class="form-control"
+                      placeholder="Choose Country"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="postal-code-shipping" class="form-label"
+                      >Postal Code/ZIP</label
+                    >
+                    <input
+                      type="text"
+                      id="postal-code-shipping"
+                      class="form-control"
+                      placeholder="V1V 1V1 / 12345"
+                    />
+                  </div>
+                </form>
               </div>
               <div
                 class="tab-pane fade"
@@ -434,7 +552,8 @@
                 aria-labelledby="pills-disabled-tab"
                 tabindex="0"
               >
-                ...
+                <h1 class="mb-3">Order Details</h1>
+                <table class="table" id="final-table"></table>
               </div>
             </div>
           </div>
