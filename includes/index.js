@@ -1,6 +1,7 @@
 // get the items
 
 class Catalog {
+  shippingCost = 20;
   validateModal = [false, false, false, false];
   currency_symbol = "$";
   change_currency = 1;
@@ -18,11 +19,54 @@ class Catalog {
     this.getCurrencyInformation();
     this.submitButton();
     this.createExpYears();
+    this.addUsProvinces();
+  }
+  addGeocoder() {
+    $("#billing-addrs-01").on("input", function () {
+      let addressInfo = $(this).val().split(" ");
+      console.log(addressInfo);
+      fetch(
+        `https://geocoder.ca/?autocomplete=1&geoit=xml&auth=test&json=1&locate=${addressInfo[0]}%20${addressInfo[1]}`
+      )
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          throw new Error("Currency not working");
+        })
+        .then((data) => {
+          let options;
+          let streets = data.streets.street;
+          if (typeof streets === "object") {
+            options = `<option>${streets[0]}</option><option>${streets[1]}</option>`;
+            $("#datalistAddrs").html(options);
+          }
+          options = `<option>${streets}</option>`;
+          $("#datalistAddrs").html();
+        })
+        .catch((e) => {
+          console.log("autocompletion not working");
+        });
+    });
+  }
+  addUsProvinces() {
+    $(".city-user").on("change", function (e) {
+      let datalist = $(this).attr("data-prov-shipping");
+      let canadianProv = $(this).attr("data-ca-shipping");
+      let usProv = $(this).attr("data-us-shipping");
+      if ($(this).val() === "US") {
+        $(datalist).attr("list", usProv);
+      } else if ($(this).val() === "CA") {
+        $(datalist).attr("list", canadianProv);
+      }
+    });
   }
 
   renderOrderTable() {
     let itemArr = get_cookie("shopping_cart_items");
     let idProducts = Object.keys(itemArr);
+    let total = 0;
+    let taxes = 0;
     let numProducts = `<thead><tr>
     <th scope="col">Item</th>
     <th scope="col">Qty</th>
@@ -34,6 +78,7 @@ class Catalog {
     idProducts.forEach((id) => {
       let { title, price } = this.items_catalog[id - 1];
       let priceItems = (price * this.change_currency).toFixed(2);
+      total += itemArr[id] * priceItems;
       numProducts += `<tr>
         <td>${title}</td>
         <td>${itemArr[id]}</td>
@@ -42,6 +87,38 @@ class Catalog {
       <tr>`;
     });
     numProducts += "</tbody>";
+    let tableSubtotal = `<tr>
+                <th scope="col">Subtotal</th>
+                <td></td>
+                <td></td>
+                <td>${this.currency_symbol}${total.toFixed(2)}</td>
+    </tr>`;
+    let orderShipping = `<tr>
+                        <th scope="col">Shipping</th>
+                        <td></td>
+                        <td></td>
+                        <td>${this.currency_symbol}${(
+      this.shippingCost * this.change_currency
+    ).toFixed(2)}</td>
+                    </tr>`;
+    let tableTaxes = `<tr>
+                            <th scope="col">Taxes</th>
+                            <td></td>
+                            <td></td>
+                            <td>${this.currency_symbol}${taxes}</td>
+                        </tr>`;
+
+    let orderTotal = `<tr>
+                              <th scope="col">Total</th>
+                              <td></td>
+                              <td></td>
+                              <td>${this.currency_symbol}${(
+      total +
+      taxes +
+      +this.shippingCost * this.change_currency
+    ).toFixed(2)}</td>
+                          </tr>`;
+    numProducts += tableSubtotal + orderShipping + tableTaxes + orderTotal;
     $("#final-table").html(numProducts);
   }
   // handle modal
@@ -149,7 +226,8 @@ class Catalog {
       cardNumber.addClass("is-invalid");
       cardNumber.removeClass("is-valid");
       let tooltip = new bootstrap.Tooltip("#card-number", {
-        title: "Please enter a valid card number",
+        title:
+          "Please enter the card number in the format #### #### #### #### or #### ###### ##### (American Express)",
       });
       return false;
     }
@@ -180,6 +258,105 @@ class Catalog {
     let validation = validateCard && validateExpDate && validateSecurityCode;
     return validation;
   }
+
+  validateCountry(userCountry) {
+    let countrySelected = userCountry + " :selected";
+    if ($(countrySelected).val() != 0) {
+      $(userCountry).removeClass("is-invalid");
+      $(userCountry).addClass("is-valid");
+      if ($(userCountry).tooltip != undefined) {
+        $(userCountry).tooltip("dispose");
+      }
+      return true;
+    } else {
+      $(userCountry).addClass("is-invalid");
+      $(userCountry).removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip(userCountry, {
+        title: "Value should be greater than 2 characters.",
+      });
+      return false;
+    }
+  }
+  validateInputs(inputs, general) {
+    if ($(inputs).val().match(general)) {
+      $(inputs).removeClass("is-invalid");
+      $(inputs).addClass("is-valid");
+      if ($(inputs).tooltip != undefined) {
+        $(inputs).tooltip("dispose");
+      }
+      return true;
+    } else {
+      $(inputs).addClass("is-invalid");
+      $(inputs).removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip(inputs, {
+        title: "Value should be greater than 2 characters.",
+      });
+      return false;
+    }
+  }
+  validatePC(userPC) {
+    let userPostal = $(userPC).val();
+    let postalCodeString =
+      /^[^DFIOQUWZa-z][0-9][^DFIOQUa-z] ?[0-9][^DFIOQUa-z][0-9]$/;
+    // The format is LNLNLN or LNL NLN
+    // Invalid letters D,F,I,O,Q,and U
+    // The postal code cannot start with W or Z
+    // If the letters are in lower case, it will not match
+    // The ? means that the whitespace is optional
+    let invalidPostalCode = /[a-z]+/;
+    if (userPostal.match(postalCodeString)) {
+      $(userPC).removeClass("is-invalid");
+      $(userPC).addClass("is-valid");
+      if ($(userPC).tooltip != undefined) {
+        $(userPC).tooltip("dispose");
+      }
+      return true;
+    }
+    // if postal code is empty
+    if (userPostal === "") {
+      $(userPC).addClass("is-invalid");
+      $(userPC).removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip(userPC, {
+        title: "Please enter a postal code",
+      });
+      return false;
+    }
+    // if W or Z are at the start of the postal code, we will provide this message to the user
+    if (userPostal[0] === "W" || userPostal[0] === "Z") {
+      $(userPC).addClass("is-invalid");
+      $(userPC).removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip(userPC, {
+        title: 'Postal code cannot start with "W" or "Z"',
+      });
+      return false;
+    }
+
+    // if there is a lower case letter in the postal code
+    if (userPostal.match(invalidPostalCode)) {
+      $(userPC).addClass("is-invalid");
+      $(userPC).removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip(userPC, {
+        title: "Postal code should be in upper case",
+      });
+      return false;
+    }
+    $(userPC).addClass("is-invalid");
+    $(userPC).removeClass("is-valid");
+    let tooltip = new bootstrap.Tooltip(userPC, {
+      title: "Postal code cannot contain the letters D, F, I, O, Q, or U",
+    });
+    return false;
+  }
+  validateUserInformation(userCountry, userPCInput, userAddrs, ...moreInputs) {
+    let general = /[A-Za-z]{2}/;
+    console.log(moreInputs);
+    let fieldsValidated = [];
+    for (let i = 0; i < moreInputs.length; i++) {
+      fieldsValidated[i] = this.validateInputs(moreInputs[i], general);
+    }
+    this.validateCountry(userCountry);
+    this.validatePC(userPCInput);
+  }
   submitButton() {
     $("#shipping-checkbox").change(() => {
       $("#shipping-address").toggleClass("d-none");
@@ -202,6 +379,23 @@ class Catalog {
         this.validateModal[0] = false;
         console.log(this.validateModal);
       }
+    });
+
+    // billing address
+    $("#billing-info").submit((e) => {
+      e.preventDefault();
+      this.validateUserInformation(
+        "#country",
+        "#postal-code",
+        "#billing-addrs-01",
+        "#user-name",
+        "#city",
+        "#province-state",
+        "#user-lastname"
+      );
+    });
+    $("#validate-billing-addrs").click((e) => {
+      $("#pills-contact-tab").click();
     });
   }
 
@@ -353,6 +547,7 @@ class Catalog {
     this.counter = 0;
   };
   add_event_handler() {
+    this.addGeocoder();
     // get total price
 
     // event handler
@@ -455,9 +650,18 @@ class Catalog {
 
   getCurrencyInformation() {
     fetch(this.CURR_API)
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error("Currency not working");
+      })
       .then((data) => {
         this.addCurrencyEventListener(data);
+      })
+      .catch((e) => {
+        $("#input-currency").hide();
+        console.log("Currency changer not working");
       });
   }
 }
