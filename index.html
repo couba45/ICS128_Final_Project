@@ -351,6 +351,10 @@
                       class="form-control geo-autocomplete"
                       list="datalistAddrs"
                       placeholder="Billing Address"
+                      data-city-user="#city"
+                      data-province-user="#province-state"
+                      data-postal-code="#postal-code"
+                      data-country="#country"
                     />
                     <datalist id="datalistAddrs"> </datalist>
                   </div>
@@ -565,9 +569,12 @@
                     <input
                       type="text"
                       id="shipping-addrs-01"
-                      class="form-control"
+                      class="form-control geo-autocomplete"
+                      list="shipping-streets"
                       placeholder="Billing Address"
                     />
+                    <datalist id="shipping-streets" class="geo-datalist">
+                    </datalist>
                   </div>
                   <div class="col-md-12 mb-3">
                     <label for="shipping-addrs-02" class="form-label"

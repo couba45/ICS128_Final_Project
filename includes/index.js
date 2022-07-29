@@ -18,15 +18,30 @@ class Catalog {
     this.getCardInformation();
     this.getCurrencyInformation();
     this.submitButton();
+    this.useCookies();
     this.createExpYears();
     this.addUsProvinces();
   }
+  useCookies() {
+    if (get_cookie("shopping_cart_list") !== undefined) {
+      this.setCounter();
+      $("#button-container").removeClass("d-none");
+      $("#button-container").addClass("d-flex");
+    }
+  }
   addGeocoder() {
-    $("#billing-addrs-01").on("input", function () {
+    $(".geo-autocomplete").on("input", function () {
+      let $element = $(this);
       let addressInfo = $(this).val().split(" ");
-      console.log(addressInfo);
+      let addressString;
+      if (addressInfo.length === 1) {
+        addressString = "Some";
+      } else {
+        addressString = addressInfo[1];
+      }
+      console.log(addressString);
       fetch(
-        `https://geocoder.ca/?autocomplete=1&geoit=xml&auth=test&json=1&locate=${addressInfo[0]}%20${addressInfo[1]}`
+        `https://geocoder.ca/?autocomplete=1&geoit=xml&auth=test&json=1&locate=${addressInfo[0]}%20${addressString}`
       )
         .then((response) => {
           if (response.ok) {
@@ -35,14 +50,39 @@ class Catalog {
           throw new Error("Currency not working");
         })
         .then((data) => {
+          let streetDataList = "#" + $element.attr("list");
           let options;
+          let addrs = [];
           let streets = data.streets.street;
+          console.log(typeof streets);
           if (typeof streets === "object") {
-            options = `<option>${streets[0]}</option><option>${streets[1]}</option>`;
-            $("#datalistAddrs").html(options);
+            for (let i = 0; i < streets.length; i++) {
+              addrs[i] = streets[i].split(", ");
+              options += `<option class="street-opt" value="${addrs[i][0]}" data-city="${addrs[i][1]}" data-prov="${addrs[i][2]}" data-pc="${addrs[i][3]}">${addrs[i][0]}</option>`;
+            }
+          } else {
+            addrs[0] = streets.split(", ");
+            options = `<option class="street-opt" value="${
+              addrs[0][0]
+            }" data-city="${addrs[0][1]}" data-prov="${addrs[0][2]}" data-pc="${
+              addrs[0][3]
+            }">${addrs[0][0] + " " + addrs[0][1]}</option>`;
           }
-          options = `<option>${streets}</option>`;
-          $("#datalistAddrs").html();
+          let opt = $('option[value="' + $(this).val() + '"]');
+          if (opt.attr("data-city") !== undefined) {
+            let userCity = opt.attr("data-city");
+            let userProv = opt.attr("data-prov");
+            let userPC = opt.attr("data-pc");
+            let cityInput = $(this).attr("data-city-user");
+            let provinceInput = $(this).attr("data-province-user");
+            let postalCode = $(this).attr("data-postal-code");
+            let country = $(this).attr("data-country");
+            $(cityInput).attr("value", userCity);
+            $(provinceInput).attr("value", userProv);
+            $(postalCode).attr("value", userPC);
+            $(country).val("CA");
+          }
+          $(streetDataList).html(options);
         })
         .catch((e) => {
           console.log("autocompletion not working");
@@ -233,7 +273,7 @@ class Catalog {
     }
   }
   validateSecurityCode() {
-    let validCVV = /\b[0-9]{3}\b/;
+    let validCVV = /\b[0-9]{4}\b/;
     let CVV = $("#security-code").val();
     if (CVV.match(validCVV)) {
       $("#security-code").removeClass("is-invalid");
@@ -340,6 +380,15 @@ class Catalog {
       });
       return false;
     }
+    console.log(userPostal.length);
+    if (!(userPostal.length > 5 && userPostal.length < 8)) {
+      $(userPC).addClass("is-invalid");
+      $(userPC).removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip(userPC, {
+        title: "Postal code is too long",
+      });
+      return false;
+    }
     $(userPC).addClass("is-invalid");
     $(userPC).removeClass("is-valid");
     let tooltip = new bootstrap.Tooltip(userPC, {
@@ -347,7 +396,7 @@ class Catalog {
     });
     return false;
   }
-  validateUserInformation(userCountry, userPCInput, userAddrs, ...moreInputs) {
+  validateUserInformation(userCountry, userPCInput, ...moreInputs) {
     let general = /[A-Za-z]{2}/;
     console.log(moreInputs);
     let fieldsValidated = [];
@@ -667,6 +716,5 @@ class Catalog {
 }
 
 $(document).ready(function () {
-  set_cookie("shopping_cart_items", null);
   let catalog = new Catalog();
 });
