@@ -1,6 +1,8 @@
 // get the items
 
 class Catalog {
+  taxes = 0;
+  typeOfCard = "";
   shippingCost = 20;
   validateModal = [false, false, false, false];
   currency_symbol = "$";
@@ -21,6 +23,118 @@ class Catalog {
     this.useCookies();
     this.createExpYears();
     this.addUsProvinces();
+    this.findTaxesRate();
+  }
+  calculateTaxes() {
+    let $this = this;
+    let province = $("#province-state").val();
+    if (!$("#shipping-checkbox").is(":checked")) {
+      province = $("#province-state-shipping").val();
+      if ($("#country-shipping :selected").val() === "US") {
+        $this.taxes = 0;
+        $this.renderOrderTable();
+        return;
+      }
+    } else {
+      console.log($("#country :selected").val());
+      if ($("#country :selected").val() === "US") {
+        $this.taxes = 0;
+        $this.renderOrderTable();
+
+        return;
+      }
+    }
+    switch (province) {
+      case "AB":
+        $this.taxes = 0.05;
+        break;
+      case "BC":
+        $this.taxes = 0.12;
+        break;
+      case "MB":
+        $this.taxes = 0.12;
+        break;
+      case "NB":
+        $this.taxes = 0.15;
+        break;
+      case "NL":
+        $this.taxes = 0.15;
+        break;
+      case "NT":
+        $this.taxes = 0.05;
+        break;
+      case "NS":
+        $this.taxes = 0.15;
+        break;
+      case "NU":
+        $this.taxes = 0.05;
+        break;
+      case "ON":
+        $this.taxes = 0.13;
+        break;
+      case "PE":
+        $this.taxes = 0.15;
+        break;
+      case "QC":
+        $this.taxes = 0.149;
+        break;
+      case "SK":
+        $this.taxes = 0.11;
+        break;
+      case "YT":
+        $this.taxes = 0.05;
+        break;
+      default:
+        $this.taxes = 0;
+        break;
+    }
+    console.log($("#province-state-shipping").text());
+    $this.renderOrderTable();
+  }
+  findTaxesRate() {
+    $(".city-user").change((e) => {
+      if (!$("#shipping-checkbox").is(":checked")) {
+        if ($("#country-shipping :selected").val() === "US") {
+          this.taxes = 0;
+          this.renderOrderTable();
+          return;
+        }
+      }
+      if ($("#country :selected").val() === "US") {
+        this.taxes = 0;
+        this.renderOrderTable();
+
+        return;
+      }
+    });
+
+    /* let province = $("#province-state-shipping").val();
+      if ($("#shipping-checbox").is(":checked")) {
+        province = $("#province-state").text();
+        if ($("#country-shipping :selected").val() === "US") {
+          $this.taxes = 0;
+          return;
+        }
+      } else {
+        if ($("#country :selected").val() === "US") {
+          $this.taxes = 0;
+          return;
+        }
+      }
+      switch (province) {
+        case "AB":
+          $this.taxes = 0.05;
+          break;
+        case "BC":
+          $this.taxes = 0.12;
+          break;
+        default:
+          $this.taxes = 0;
+          break;
+      }
+      console.log($("#province-state-shipping").text());
+      $this.renderOrderTable();
+      */
   }
   useCookies() {
     if (get_cookie("shopping_cart_list") !== undefined) {
@@ -31,6 +145,22 @@ class Catalog {
   }
   addGeocoder() {
     $(".geo-autocomplete").on("input", function () {
+      let opt = $('option[value="' + $(this).val() + '"]');
+      if (opt.attr("data-city") !== undefined) {
+        let userCity = opt.attr("data-city");
+        let userProv = opt.attr("data-prov");
+        let userPC = opt.attr("data-pc");
+        let cityInput = $(this).attr("data-city-user");
+        let provinceInput = $(this).attr("data-province-user");
+        let postalCode = $(this).attr("data-postal-code");
+        let country = $(this).attr("data-country");
+        $(cityInput).val(userCity);
+        $(provinceInput).val(userProv);
+
+        $(postalCode).val(userPC);
+
+        $(country).val("CA");
+      }
       let $element = $(this);
       let addressInfo = $(this).val().split(" ");
       let addressString;
@@ -56,7 +186,7 @@ class Catalog {
           let streets = data.streets.street;
           console.log(typeof streets);
           if (typeof streets === "object") {
-            for (let i = 0; i < streets.length; i++) {
+            for (let i = 0; i < 5; i++) {
               addrs[i] = streets[i].split(", ");
               options += `<option class="street-opt" value="${addrs[i][0]}" data-city="${addrs[i][1]}" data-prov="${addrs[i][2]}" data-pc="${addrs[i][3]}">${addrs[i][0]}</option>`;
             }
@@ -68,20 +198,7 @@ class Catalog {
               addrs[0][3]
             }">${addrs[0][0] + " " + addrs[0][1]}</option>`;
           }
-          let opt = $('option[value="' + $(this).val() + '"]');
-          if (opt.attr("data-city") !== undefined) {
-            let userCity = opt.attr("data-city");
-            let userProv = opt.attr("data-prov");
-            let userPC = opt.attr("data-pc");
-            let cityInput = $(this).attr("data-city-user");
-            let provinceInput = $(this).attr("data-province-user");
-            let postalCode = $(this).attr("data-postal-code");
-            let country = $(this).attr("data-country");
-            $(cityInput).attr("value", userCity);
-            $(provinceInput).attr("value", userProv);
-            $(postalCode).attr("value", userPC);
-            $(country).val("CA");
-          }
+
           $(streetDataList).html(options);
         })
         .catch((e) => {
@@ -106,7 +223,8 @@ class Catalog {
     let itemArr = get_cookie("shopping_cart_items");
     let idProducts = Object.keys(itemArr);
     let total = 0;
-    let taxes = 0;
+    let shipping = this.shippingCost * this.change_currency;
+
     let numProducts = `<thead><tr>
     <th scope="col">Item</th>
     <th scope="col">Qty</th>
@@ -126,6 +244,9 @@ class Catalog {
         <td>${this.currency_symbol}${(itemArr[id] * priceItems).toFixed(2)}</td>
       <tr>`;
     });
+    let totalTaxes = this.taxes * total;
+    let orderPriceTotal =
+      total + totalTaxes + +this.shippingCost * this.change_currency;
     numProducts += "</tbody>";
     let tableSubtotal = `<tr>
                 <th scope="col">Subtotal</th>
@@ -137,26 +258,24 @@ class Catalog {
                         <th scope="col">Shipping</th>
                         <td></td>
                         <td></td>
-                        <td>${this.currency_symbol}${(
-      this.shippingCost * this.change_currency
-    ).toFixed(2)}</td>
+                        <td>${this.currency_symbol}${shipping.toFixed(2)}</td>
                     </tr>`;
     let tableTaxes = `<tr>
                             <th scope="col">Taxes</th>
                             <td></td>
                             <td></td>
-                            <td>${this.currency_symbol}${taxes}</td>
+                            <td>${this.currency_symbol}${totalTaxes.toFixed(
+      2
+    )}</td>
                         </tr>`;
 
     let orderTotal = `<tr>
                               <th scope="col">Total</th>
                               <td></td>
                               <td></td>
-                              <td>${this.currency_symbol}${(
-      total +
-      taxes +
-      +this.shippingCost * this.change_currency
-    ).toFixed(2)}</td>
+                              <td>${
+                                this.currency_symbol
+                              }${orderPriceTotal.toFixed(2)}</td>
                           </tr>`;
     numProducts += tableSubtotal + orderShipping + tableTaxes + orderTotal;
     $("#final-table").html(numProducts);
@@ -256,6 +375,11 @@ class Catalog {
     let masterCard =
       /^(5[1-5][0-9]{2}[ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}|2(22[1-9][ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}|2[3-9][0-9][ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}|[3-6][0-9]{2}[ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}|7[0-1][0-9]{1}[ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}|720[ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}))$/;
     if (num.match(visa) || num.match(amex) || num.match(masterCard)) {
+      if (num.match(amex)) {
+        this.typeOfCard = "amex";
+      } else {
+        this.typeOfCard = "others";
+      }
       cardNumber.removeClass("is-invalid");
       cardNumber.addClass("is-valid");
       if (cardNumber.tooltip != undefined) {
@@ -273,7 +397,12 @@ class Catalog {
     }
   }
   validateSecurityCode() {
-    let validCVV = /\b[0-9]{4}\b/;
+    let validCVV;
+    if (this.typeOfCard === "amex") {
+      validCVV = /\b[0-9]{4}\b/;
+    } else {
+      validCVV = /\b[0-9]{3}\b/;
+    }
     let CVV = $("#security-code").val();
     if (CVV.match(validCVV)) {
       $("#security-code").removeClass("is-invalid");
@@ -286,7 +415,7 @@ class Catalog {
     $("#security-code").addClass("is-invalid");
     $("#security-code").removeClass("is-valid");
     let tooltip = new bootstrap.Tooltip("#security-code", {
-      title: "It should contain just 3 digits",
+      title: "It should contain just 3 digits or 4 if it is American Express",
     });
     return false;
   }
@@ -396,15 +525,228 @@ class Catalog {
     });
     return false;
   }
-  validateUserInformation(userCountry, userPCInput, ...moreInputs) {
+  validateProv(userProv) {
+    let datalistProv = "#" + $(userProv).attr("list") + " option";
+    let options = $(datalistProv);
+    let matchProv = false;
+    if ($(userProv).val().length > 2) {
+      $(userProv).addClass("is-invalid");
+      $(userProv).removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip(userProv, {
+        title: "Enter the abbreviation of your province or state",
+      });
+      return false;
+    }
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].value === $(userProv).val()) {
+        matchProv = true;
+      }
+    }
+    if (matchProv) {
+      $(userProv).removeClass("is-invalid");
+      $(userProv).addClass("is-valid");
+      if ($(userProv).tooltip != undefined) {
+        $(userProv).tooltip("dispose");
+      }
+      return true;
+    }
+    // if postal code is empty
+    else {
+      $(userProv).addClass("is-invalid");
+      $(userProv).removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip(userProv, {
+        title:
+          "Please enter a valid state or province depending on the country you chose",
+      });
+      return false;
+    }
+  }
+  validateUserPhoneNumber(userPhone) {
+    let phoneNum = $(userPhone).val();
+    // the three regular expressions follow the convention ###-###-####, ### ### ####, and ##########
+    // the {n} means repetition where the left element is repeated n times
+    // the \b sets some boundaries reducing the matches to the ones that follow the criteria
+    //      Ex: 234 234 23456 would not match beacuse it has 13 elements in despite of having the 234 234 2345 the 6 is outside the boundary
+    let phoneNumber1 = /\b[2-9][0-9]{2}-[2-9][0-9]{2}-[2-9][0-9]{3}\b/;
+    let phoneNumber2 = /\b[2-9][0-9]{2} [2-9][0-9]{2} [2-9][0-9]{3}\b/;
+    let phoneNumber3 = /\b[2-9][0-9]{2}[2-9][0-9]{2}[2-9][0-9]{3}\b/;
+    let areaCode = /\b[2-9]1{2}\b/; // invalid area codes
+    let zeroCounter = 0;
+
+    // verify if the phone number follows one of these formats
+    if (
+      phoneNum.match(phoneNumber1) ||
+      phoneNum.match(phoneNumber2) ||
+      phoneNum.match(phoneNumber3)
+    ) {
+      // even if the phone number is valid, we need to make sure the area code is not reserved
+      if (phoneNum.substring(0, 3).match(areaCode)) {
+        $(userPhone).addClass("is-invalid");
+        $(userPhone).removeClass("is-valid");
+        let tooltip = new bootstrap.Tooltip(userPhone, {
+          title: "Invalid area code, please reenter your phone number",
+        });
+        return false;
+      }
+      $(userPhone).removeClass("is-invalid");
+      $(userPhone).addClass("is-valid");
+      if ($(userPhone).tooltip != undefined) {
+        $(userPhone).tooltip("dispose");
+      }
+      return true;
+    } else {
+      // count the number of zeros in the phone number
+      for (let i = 0; i < phoneNum.length; i++) {
+        if (phoneNum[i] === "0") {
+          ++zeroCounter;
+        }
+      }
+      // prompt an error if all the numbers are zeros
+      if (zeroCounter >= 10) {
+        $(userPhone).addClass("is-invalid");
+        $(userPhone).removeClass("is-valid");
+        let tooltip = new bootstrap.Tooltip(userPhone, {
+          title: "Phone number cannot all be zeros",
+        });
+        return false;
+      }
+
+      // if the phone number contains a - or a space, we get rid of them so we can validate the numbers
+      // the numbers are stored in "numbers" as an array
+      let numbers = phoneNum.split("-");
+      if (numbers.length !== 3) {
+        numbers = phoneNum.split(" ");
+      }
+
+      // when joinning the elements in "numbers" checks if the string is a number
+      if (
+        !Number(numbers.join("")) ||
+        (numbers.length !== 3 && numbers.length !== 1)
+      ) {
+        $(userPhone).addClass("is-invalid");
+        $(userPhone).removeClass("is-valid");
+        let tooltip = new bootstrap.Tooltip(userPhone, {
+          title:
+            "Please enter the number in the format ###-###-#### or ### ### #### or ##########",
+        });
+        return false;
+      }
+
+      // verifies if the phone number is too long or too short
+      // if "number" length equals 3 means the user used either "-" or " "
+      // if "mumber" length equals 1 means the user input just numbers
+      if (numbers.length === 3) {
+        if (phoneNum.length > 12) {
+          $(userPhone).addClass("is-invalid");
+          $(userPhone).removeClass("is-valid");
+          let tooltip = new bootstrap.Tooltip(userPhone, {
+            title: "Number is too long",
+          });
+          return false;
+        } else if (phoneNum.length < 12) {
+          $(userPhone).addClass("is-invalid");
+          $(userPhone).removeClass("is-valid");
+          let tooltip = new bootstrap.Tooltip(userPhone, {
+            title: "Number is too short",
+          });
+          return false;
+        }
+      } else if (numbers.length === 1) {
+        if (phoneNum.length > 10) {
+          $(userPhone).addClass("is-invalid");
+          $(userPhone).removeClass("is-valid");
+          let tooltip = new bootstrap.Tooltip(userPhone, {
+            title: "Number is too long",
+          });
+          return false;
+        } else if (phoneNum.length < 10) {
+          $(userPhone).addClass("is-invalid");
+          $(userPhone).removeClass("is-valid");
+          let tooltip = new bootstrap.Tooltip(userPhone, {
+            title: "Number is too short",
+          });
+          return false;
+        }
+      }
+
+      // verify if the start of each block in a phone number starts with a 0 or 1
+      if (phoneNum.length === 10) {
+        // Ex:2342342345 the start of each block are in indexes 0,3, and 6
+        if (
+          phoneNum[0] == 0 ||
+          phoneNum[0] == 1 ||
+          phoneNum[3] == 0 ||
+          phoneNum[3] == 1 ||
+          phoneNum[6] == 0 ||
+          phoneNum[6] == 1
+        ) {
+          $(userPhone).addClass("is-invalid");
+          $(userPhone).removeClass("is-valid");
+          let tooltip = new bootstrap.Tooltip(userPhone, {
+            title: "Phone number cannot start with 1 or 0",
+          });
+          return false;
+        }
+      } else {
+        // Ex:234-234-2345 the start of each block are in indexes 0,4, and 8
+        if (
+          phoneNum[0] == 0 ||
+          phoneNum[0] == 1 ||
+          phoneNum[4] == 0 ||
+          phoneNum[4] == 1 ||
+          phoneNum[8] == 0 ||
+          phoneNum[8] == 1
+        ) {
+          $(userPhone).addClass("is-invalid");
+          $(userPhone).removeClass("is-valid");
+          let tooltip = new bootstrap.Tooltip(userPhone, {
+            title: "Phone number cannot start with 1 or 0",
+          });
+          return false;
+        }
+      }
+    }
+  }
+  validateUserEmail(userEmail) {
+    let emailString = $(userEmail).val();
+    let emailUser = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+    // ^ means the start of the string where the characters can be anything but @ or a whitespace
+    // there should be a @
+    // after the @ the characters allowed cannot be a @ or a whitespace
+    // there should be a .
+    // $ means the end of the string where the characters can be anything but @ or whitespaces
+    if (emailString.match(emailUser)) {
+      $(userEmail).removeClass("is-invalid");
+      $(userEmail).addClass("is-valid");
+      if ($(userEmail).tooltip != undefined) {
+        $(userEmail).tooltip("dispose");
+      }
+      return true;
+    }
+    $(userEmail).addClass("is-invalid");
+    $(userEmail).removeClass("is-valid");
+    let tooltip = new bootstrap.Tooltip(userEmail, {
+      title: "Please enter a valid email",
+    });
+    return false;
+  }
+  validateUserInformation(userCountry, userPCInput, userProv, ...moreInputs) {
     let general = /[A-Za-z]{2}/;
     console.log(moreInputs);
     let fieldsValidated = [];
     for (let i = 0; i < moreInputs.length; i++) {
       fieldsValidated[i] = this.validateInputs(moreInputs[i], general);
     }
-    this.validateCountry(userCountry);
-    this.validatePC(userPCInput);
+    let countryValidated = this.validateCountry(userCountry);
+    let pcValidated = this.validatePC(userPCInput);
+    let provValidated = this.validateProv(userProv);
+
+    return (
+      countryValidated &&
+      pcValidated &&
+      provValidated &&
+      fieldsValidated.every((field) => field === true)
+    );
   }
   submitButton() {
     $("#shipping-checkbox").change(() => {
@@ -436,15 +778,65 @@ class Catalog {
       this.validateUserInformation(
         "#country",
         "#postal-code",
+        "#province-state",
         "#billing-addrs-01",
         "#user-name",
         "#city",
         "#province-state",
         "#user-lastname"
       );
+      this.validateUserPhoneNumber("#user-phone");
+      this.validateUserEmail("#user-email");
+      this.calculateTaxes();
+    });
+    $("#shipping-address").submit((e) => {
+      e.preventDefault();
+      this.validateUserInformation(
+        "#country-shipping",
+        "#postal-code-shipping",
+        "#province-state-shipping",
+        "#shipping-addrs-01",
+        "#user-name-shipping",
+        "#city-shipping",
+        "#province-state-shipping",
+        "#user-lastname-shipping"
+      );
+      this.calculateTaxes();
     });
     $("#validate-billing-addrs").click((e) => {
-      $("#pills-contact-tab").click();
+      let userPhonenumber = this.validateUserPhoneNumber("#user-phone");
+      let emailValidated = this.validateUserEmail("#user-email");
+      let validatedInputs = this.validateUserInformation(
+        "#country",
+        "#postal-code",
+        "#province-state",
+        "#billing-addrs-01",
+        "#user-name",
+        "#city",
+        "#province-state",
+        "#user-lastname"
+      );
+      this.calculateTaxes();
+      if (userPhonenumber && emailValidated && validatedInputs) {
+        $("#pills-contact-tab").click();
+      }
+    });
+    $("#validate-shipping-address").click((e) => {
+      this.calculateTaxes();
+      if (
+        this.validateUserInformation(
+          "#country-shipping",
+          "#postal-code-shipping",
+          "#province-state-shipping",
+          "#shipping-addrs-01",
+          "#user-name-shipping",
+          "#city-shipping",
+          "#province-state-shipping",
+          "#user-lastname-shipping"
+        )
+      ) {
+        $("#pills-disabled-tab").click();
+      }
     });
   }
 

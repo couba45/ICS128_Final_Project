@@ -387,7 +387,7 @@
                       name=""
                       id="province-state"
                       list="provinces-opts"
-                      class="form-control"
+                      class="form-control provinces"
                       placeholder="Province"
                     />
                     <datalist id="provinces-opts">
@@ -539,7 +539,7 @@
                 <label class="form-check-label" for="shipping-checkbox">
                   Shipping information is the same as my Billing Details
                 </label>
-                <form id="shipping-address" class="row d-none">
+                <form id="shipping-address" class="row d-none mb-5">
                   <div class="col-md-6 mb-3">
                     <label for="user-name-shipping" class="form-label"
                       >First Name</label
@@ -572,6 +572,10 @@
                       class="form-control geo-autocomplete"
                       list="shipping-streets"
                       placeholder="Billing Address"
+                      data-city-user="#city-shipping"
+                      data-province-user="#province-state-shipping"
+                      data-postal-code="#postal-code-shipping"
+                      data-country="#country-shipping"
                     />
                     <datalist id="shipping-streets" class="geo-datalist">
                     </datalist>
@@ -606,7 +610,7 @@
                       name=""
                       id="province-state-shipping"
                       list="provinces-opts-shipping"
-                      class="form-control"
+                      class="form-control provinces"
                       placeholder="Province"
                     />
                     <datalist id="provinces-opts-shipping">
@@ -712,7 +716,16 @@
                       placeholder="V1V 1V1 / 12345"
                     />
                   </div>
+                  <button class="d-none"></button>
                 </form>
+                <div class="modal-footer">
+                  <button
+                    id="validate-shipping-address"
+                    class="btn btn-primary"
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
               <div
                 class="tab-pane fade"
@@ -722,7 +735,12 @@
                 tabindex="0"
               >
                 <h1 class="mb-3">Order Details</h1>
-                <table class="table" id="final-table"></table>
+                <table class="table mb-5" id="final-table"></table>
+                <div class="modal-footer">
+                  <button id="send-order" class="btn btn-primary">
+                    Confirm Order
+                  </button>
+                </div>
               </div>
             </div>
           </div>
