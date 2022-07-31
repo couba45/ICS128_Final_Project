@@ -737,7 +737,12 @@
                 <h1 class="mb-3">Order Details</h1>
                 <table class="table mb-5" id="final-table"></table>
                 <div class="modal-footer">
-                  <button id="send-order" class="btn btn-primary">
+                  <button
+                    id="send-order"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#feedback"
+                  >
                     Confirm Order
                   </button>
                 </div>
@@ -753,6 +758,41 @@
               Close
             </button>
             <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="modal fade"
+      id="feedback"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div id="feedback-header" class="modal-header">
+            <h5 id="feedback-title" class="modal-title" id="exampleModalLabel">
+              Modal title
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="feedback-body">
+            THis is a test that it works
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>

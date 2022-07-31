@@ -4,7 +4,7 @@ class Catalog {
   taxes = 0;
   typeOfCard = "";
   shippingCost = 20;
-  validateModal = [false, false, false, false];
+  validatePhoneAndPc = [false, false];
   currency_symbol = "$";
   change_currency = 1;
   items = [];
@@ -88,7 +88,7 @@ class Catalog {
         $this.taxes = 0;
         break;
     }
-    console.log($("#province-state-shipping").text());
+    console.log($("#province-state").val());
     $this.renderOrderTable();
   }
   findTaxesRate() {
@@ -463,8 +463,29 @@ class Catalog {
       return false;
     }
   }
-  validatePC(userPC) {
+  validatePC(userPC, userCountry) {
     let userPostal = $(userPC).val();
+    let zipCode = /(^\d{5}$)|(^\d{5}-\d{4}$)/;
+    let inputCountry = userCountry + " :selected";
+    if ($(inputCountry).val() === "US") {
+      if (userPostal.match(zipCode)) {
+        $(userPC).removeClass("is-invalid");
+        $(userPC).addClass("is-valid");
+        if ($(userPC).tooltip != undefined) {
+          $(userPC).tooltip("dispose");
+        }
+        this.validatePhoneAndPc[1] = true;
+        return true;
+      } else {
+        $(userPC).addClass("is-invalid");
+        $(userPC).removeClass("is-valid");
+        let tooltip = new bootstrap.Tooltip(userPC, {
+          title: "Please enter a valid zip code",
+        });
+        this.validatePhoneAndPc[1] = false;
+        return false;
+      }
+    }
     let postalCodeString =
       /^[^DFIOQUWZa-z][0-9][^DFIOQUa-z] ?[0-9][^DFIOQUa-z][0-9]$/;
     // The format is LNLNLN or LNL NLN
@@ -479,6 +500,7 @@ class Catalog {
       if ($(userPC).tooltip != undefined) {
         $(userPC).tooltip("dispose");
       }
+      this.validatePhoneAndPc[1] = true;
       return true;
     }
     // if postal code is empty
@@ -488,6 +510,8 @@ class Catalog {
       let tooltip = new bootstrap.Tooltip(userPC, {
         title: "Please enter a postal code",
       });
+      this.validatePhoneAndPc[1] = false;
+
       return false;
     }
     // if W or Z are at the start of the postal code, we will provide this message to the user
@@ -497,6 +521,8 @@ class Catalog {
       let tooltip = new bootstrap.Tooltip(userPC, {
         title: 'Postal code cannot start with "W" or "Z"',
       });
+      this.validatePhoneAndPc[1] = false;
+
       return false;
     }
 
@@ -507,6 +533,8 @@ class Catalog {
       let tooltip = new bootstrap.Tooltip(userPC, {
         title: "Postal code should be in upper case",
       });
+      this.validatePhoneAndPc[1] = false;
+
       return false;
     }
     console.log(userPostal.length);
@@ -516,6 +544,8 @@ class Catalog {
       let tooltip = new bootstrap.Tooltip(userPC, {
         title: "Postal code is too long",
       });
+      this.validatePhoneAndPc[1] = false;
+
       return false;
     }
     $(userPC).addClass("is-invalid");
@@ -523,6 +553,8 @@ class Catalog {
     let tooltip = new bootstrap.Tooltip(userPC, {
       title: "Postal code cannot contain the letters D, F, I, O, Q, or U",
     });
+    this.validatePhoneAndPc[1] = false;
+
     return false;
   }
   validateProv(userProv) {
@@ -535,6 +567,7 @@ class Catalog {
       let tooltip = new bootstrap.Tooltip(userProv, {
         title: "Enter the abbreviation of your province or state",
       });
+
       return false;
     }
     for (let i = 0; i < options.length; i++) {
@@ -548,6 +581,7 @@ class Catalog {
       if ($(userProv).tooltip != undefined) {
         $(userProv).tooltip("dispose");
       }
+
       return true;
     }
     // if postal code is empty
@@ -558,6 +592,7 @@ class Catalog {
         title:
           "Please enter a valid state or province depending on the country you chose",
       });
+
       return false;
     }
   }
@@ -586,6 +621,7 @@ class Catalog {
         let tooltip = new bootstrap.Tooltip(userPhone, {
           title: "Invalid area code, please reenter your phone number",
         });
+        this.validatePhoneAndPc[0] = false;
         return false;
       }
       $(userPhone).removeClass("is-invalid");
@@ -593,6 +629,8 @@ class Catalog {
       if ($(userPhone).tooltip != undefined) {
         $(userPhone).tooltip("dispose");
       }
+      this.validatePhoneAndPc[0] = true;
+
       return true;
     } else {
       // count the number of zeros in the phone number
@@ -608,6 +646,7 @@ class Catalog {
         let tooltip = new bootstrap.Tooltip(userPhone, {
           title: "Phone number cannot all be zeros",
         });
+        this.validatePhoneAndPc[0] = false;
         return false;
       }
 
@@ -629,6 +668,8 @@ class Catalog {
           title:
             "Please enter the number in the format ###-###-#### or ### ### #### or ##########",
         });
+        this.validatePhoneAndPc[0] = false;
+
         return false;
       }
 
@@ -642,6 +683,8 @@ class Catalog {
           let tooltip = new bootstrap.Tooltip(userPhone, {
             title: "Number is too long",
           });
+          this.validatePhoneAndPc[0] = false;
+
           return false;
         } else if (phoneNum.length < 12) {
           $(userPhone).addClass("is-invalid");
@@ -649,6 +692,8 @@ class Catalog {
           let tooltip = new bootstrap.Tooltip(userPhone, {
             title: "Number is too short",
           });
+          this.validatePhoneAndPc[0] = false;
+
           return false;
         }
       } else if (numbers.length === 1) {
@@ -658,6 +703,8 @@ class Catalog {
           let tooltip = new bootstrap.Tooltip(userPhone, {
             title: "Number is too long",
           });
+          this.validatePhoneAndPc[0] = false;
+
           return false;
         } else if (phoneNum.length < 10) {
           $(userPhone).addClass("is-invalid");
@@ -665,6 +712,8 @@ class Catalog {
           let tooltip = new bootstrap.Tooltip(userPhone, {
             title: "Number is too short",
           });
+          this.validatePhoneAndPc[0] = false;
+
           return false;
         }
       }
@@ -685,6 +734,8 @@ class Catalog {
           let tooltip = new bootstrap.Tooltip(userPhone, {
             title: "Phone number cannot start with 1 or 0",
           });
+          this.validatePhoneAndPc[0] = false;
+
           return false;
         }
       } else {
@@ -702,6 +753,8 @@ class Catalog {
           let tooltip = new bootstrap.Tooltip(userPhone, {
             title: "Phone number cannot start with 1 or 0",
           });
+          this.validatePhoneAndPc[0] = false;
+
           return false;
         }
       }
@@ -738,7 +791,7 @@ class Catalog {
       fieldsValidated[i] = this.validateInputs(moreInputs[i], general);
     }
     let countryValidated = this.validateCountry(userCountry);
-    let pcValidated = this.validatePC(userPCInput);
+    let pcValidated = this.validatePC(userPCInput, userCountry);
     let provValidated = this.validateProv(userProv);
 
     return (
@@ -748,94 +801,153 @@ class Catalog {
       fieldsValidated.every((field) => field === true)
     );
   }
+  validateBillingForm() {
+    let userPhonenumber = this.validateUserPhoneNumber("#user-phone");
+    let emailValidated = this.validateUserEmail("#user-email");
+    let validatedInputs = this.validateUserInformation(
+      "#country",
+      "#postal-code",
+      "#province-state",
+      "#billing-addrs-01",
+      "#user-name",
+      "#city",
+      "#province-state",
+      "#user-lastname"
+    );
+    return userPhonenumber && emailValidated && validatedInputs;
+  }
+  validateShippingForm() {
+    let validatedShippingForm = this.validateUserInformation(
+      "#country-shipping",
+      "#postal-code-shipping",
+      "#province-state-shipping",
+      "#shipping-addrs-01",
+      "#user-name-shipping",
+      "#city-shipping",
+      "#province-state-shipping",
+      "#user-lastname-shipping"
+    );
+    return validatedShippingForm;
+  }
+  submitData() {
+    let submission_data = {
+      card_number: "4111111",
+      expiry_month: "01",
+      expiry_year: "1991",
+      security_code: "123",
+      amount: "123.45",
+      taxes: "13.56",
+      shipping_amount: "15",
+      currency: "cad",
+      items: { first_item: "a computer" },
+      billing: {
+        first_name: "John",
+        last_name: "Ter",
+        address_1: "123 Some St",
+        address_2: "123 Some St",
+        city: "Victoria",
+        province: "BC",
+        country: "CA",
+        postal: "V4V6VA32323",
+        phone: "100 000 0000",
+        email: "escalante@gmail.com",
+      },
+      shipping: {
+        first_name: "John",
+        last_name: "Doe",
+        address_1: "123 Some St",
+        address_2: "",
+        city: "Victoria",
+        province: "BC",
+        country: "CA",
+        postal: "V4V6  VA3",
+      },
+    };
+    let form_data = new FormData();
+    form_data.append("submission", JSON.stringify(submission_data));
+    // where 'submission_data' is your JS object.
+
+    fetch("https://deepblue.camosun.bc.ca/~c0180354/ics128/final/", {
+      method: "POST",
+      cache: "no-cache",
+      body: form_data,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        for (const property in data) {
+          console.log(data[property]);
+        }
+      });
+  }
   submitButton() {
     $("#shipping-checkbox").change(() => {
       $("#shipping-address").toggleClass("d-none");
+      this.calculateTaxes();
     });
     $("#payment-details").submit((e) => {
       e.preventDefault();
-      if (this.validatePayment()) {
-        this.validateModal[0] = true;
-        console.log(this.validateModal);
-      } else {
-        this.validateModal[0] = false;
-        console.log(this.validateModal);
-      }
+      this.validatePayment();
     });
     $("#validate-payment").click((e) => {
       if (this.validatePayment()) {
-        this.validateModal[0] = true;
         $("#pills-profile-tab").click();
-      } else {
-        this.validateModal[0] = false;
-        console.log(this.validateModal);
       }
     });
 
     // billing address
     $("#billing-info").submit((e) => {
       e.preventDefault();
-      this.validateUserInformation(
-        "#country",
-        "#postal-code",
-        "#province-state",
-        "#billing-addrs-01",
-        "#user-name",
-        "#city",
-        "#province-state",
-        "#user-lastname"
-      );
-      this.validateUserPhoneNumber("#user-phone");
-      this.validateUserEmail("#user-email");
+      this.validateBillingForm();
       this.calculateTaxes();
     });
     $("#shipping-address").submit((e) => {
       e.preventDefault();
-      this.validateUserInformation(
-        "#country-shipping",
-        "#postal-code-shipping",
-        "#province-state-shipping",
-        "#shipping-addrs-01",
-        "#user-name-shipping",
-        "#city-shipping",
-        "#province-state-shipping",
-        "#user-lastname-shipping"
-      );
+      this.validateShippingForm();
       this.calculateTaxes();
     });
     $("#validate-billing-addrs").click((e) => {
-      let userPhonenumber = this.validateUserPhoneNumber("#user-phone");
-      let emailValidated = this.validateUserEmail("#user-email");
-      let validatedInputs = this.validateUserInformation(
-        "#country",
-        "#postal-code",
-        "#province-state",
-        "#billing-addrs-01",
-        "#user-name",
-        "#city",
-        "#province-state",
-        "#user-lastname"
-      );
+      let validation = this.validateBillingForm();
       this.calculateTaxes();
-      if (userPhonenumber && emailValidated && validatedInputs) {
+      if (validation) {
         $("#pills-contact-tab").click();
       }
     });
     $("#validate-shipping-address").click((e) => {
-      this.calculateTaxes();
-      if (
-        this.validateUserInformation(
-          "#country-shipping",
-          "#postal-code-shipping",
-          "#province-state-shipping",
-          "#shipping-addrs-01",
-          "#user-name-shipping",
-          "#city-shipping",
-          "#province-state-shipping",
-          "#user-lastname-shipping"
-        )
-      ) {
+      if (this.validateShippingForm()) {
         $("#pills-disabled-tab").click();
+      }
+      this.calculateTaxes();
+    });
+    $("#send-order").click((e) => {
+      this.validatePayment();
+      this.validateBillingForm();
+      if (!$("#shipping-checkbox").is(":checked")) {
+        this.validateShippingForm();
+      }
+      this.calculateTaxes();
+      console.log(this.validatePhoneAndPc);
+      if (this.validatePhoneAndPc.every((el) => el === true)) {
+        this.submitData();
+      } else {
+        if (this.validatePhoneAndPc[0] === false) {
+          let headerMessage = `<span><svg xmlns="http://www.w3.org/2000/svg" style="height: 2rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg></span> Error`;
+          let messageBody = "Invalid phone number";
+          $("#feedback-header").addClass("alert");
+          $("#feedback-header").addClass("alert-danger");
+          $("#feedback-title").html(headerMessage);
+          $("#feedback-body").html(messageBody);
+        } else {
+          let headerMessage = `<span><svg xmlns="http://www.w3.org/2000/svg" style="height: 2rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg></span> Error`;
+          let messageBody = "Invalid postal code or zip number";
+          $("#feedback-header").addClass("alert");
+          $("#feedback-header").addClass("alert-danger");
+          $("#feedback-title").html(headerMessage);
+          $("#feedback-body").html(messageBody);
+        }
       }
     });
   }
