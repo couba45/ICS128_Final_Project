@@ -137,7 +137,7 @@ class Catalog {
       */
   }
   useCookies() {
-    if (get_cookie("shopping_cart_list") !== undefined) {
+    if (!jQuery.isEmptyObject(get_cookie("shopping_cart_list"))) {
       this.setCounter();
       $("#button-container").removeClass("d-none");
       $("#button-container").addClass("d-flex");
@@ -255,27 +255,35 @@ class Catalog {
                 <td>${this.currency_symbol}${total.toFixed(2)}</td>
     </tr>`;
     let orderShipping = `<tr>
-                        <th scope="col">Shipping</th>
+                        <th scope="col" >Shipping</th>
                         <td></td>
                         <td></td>
-                        <td>${this.currency_symbol}${shipping.toFixed(2)}</td>
+                        <td>${
+                          this.currency_symbol
+                        }<span id="cost-shipping">${shipping.toFixed(
+      2
+    )}</span></td>
                     </tr>`;
     let tableTaxes = `<tr>
-                            <th scope="col">Taxes</th>
+                            <th scope="col" >Taxes</th>
                             <td></td>
                             <td></td>
-                            <td>${this.currency_symbol}${totalTaxes.toFixed(
+                            <td >${
+                              this.currency_symbol
+                            }<span id="taxes-order">${totalTaxes.toFixed(
       2
-    )}</td>
+    )}</span></td>
                         </tr>`;
 
     let orderTotal = `<tr>
-                              <th scope="col">Total</th>
+                              <th scope="col" >Total</th>
                               <td></td>
                               <td></td>
-                              <td>${
+                              <td >${
                                 this.currency_symbol
-                              }${orderPriceTotal.toFixed(2)}</td>
+                              }<span id="total-amount-order">${orderPriceTotal.toFixed(
+      2
+    )}</span></td>
                           </tr>`;
     numProducts += tableSubtotal + orderShipping + tableTaxes + orderTotal;
     $("#final-table").html(numProducts);
@@ -829,40 +837,98 @@ class Catalog {
     );
     return validatedShippingForm;
   }
+  addCloseHandler() {
+    $("#success-modal-close").click((e) => {
+      $("#delete-all-items").click();
+      location.reload(true);
+    });
+  }
   submitData() {
-    let submission_data = {
-      card_number: "4111111",
-      expiry_month: "01",
-      expiry_year: "1991",
-      security_code: "123",
-      amount: "123.45",
-      taxes: "13.56",
-      shipping_amount: "15",
-      currency: "cad",
-      items: { first_item: "a computer" },
-      billing: {
-        first_name: "John",
-        last_name: "Ter",
-        address_1: "123 Some St",
-        address_2: "123 Some St",
-        city: "Victoria",
-        province: "BC",
-        country: "CA",
-        postal: "V4V6VA32323",
-        phone: "100 000 0000",
-        email: "escalante@gmail.com",
-      },
-      shipping: {
-        first_name: "John",
-        last_name: "Doe",
-        address_1: "123 Some St",
-        address_2: "",
-        city: "Victoria",
-        province: "BC",
-        country: "CA",
-        postal: "V4V6  VA3",
-      },
+    let itemsToSenc = {};
+    let itemArr = get_cookie("shopping_cart_items");
+    let idProducts = Object.keys(itemArr);
+    idProducts.forEach((id) => {
+      let { title } = this.items_catalog[id - 1];
+      itemsToSenc[title] = itemArr[id];
+    });
+    let totalAmountOrder = $("#total-amount-order").text();
+    let totalTaxes = $("#taxes-order").text();
+    let totalShipping = $("#cost-shipping").text();
+    let currency = $("#input-currency :selected").val();
+
+    let creditCardNumber = $("#card-number").val().split(" ").join("");
+    let expMonth = "0" + $("#expiration-month").val();
+    let expYear = $("#expiration-year").val();
+    let securityCode = $("#security-code").val();
+    let userName = $("#user-name").val();
+    let userLastName = $("#user-lastname").val();
+    let userAddress01 = $("#billing-addrs-01").val();
+    let userAddress02 = $("#billing-addrs-02").val();
+    let userCity = $("#city").val();
+    let userProvince = $("#province-state").val();
+    let userCountry = $("#country").val();
+    let userPostalCode = $("#postal-code").val();
+    let userPhoneNumber = $("#user-phone").val();
+    let userEmail = $("#user-email").val();
+
+    let billingAddress = {
+      first_name: userName,
+      last_name: userLastName,
+      address_1: userAddress01,
+      address_2: userAddress02,
+      city: userCity,
+      province: userProvince,
+      country: userCountry,
+      postal: userPostalCode,
+      phone: userPhoneNumber,
+      email: userEmail,
     };
+    let shippingAddress = {
+      first_name: userName,
+      last_name: userLastName,
+      address_1: userAddress01,
+      address_2: userAddress02,
+      city: userCity,
+      province: userProvince,
+      country: userCountry,
+      postal: userPostalCode,
+    };
+    if (!$("#shipping-checkbox").is(":checked")) {
+      let userNameShipping = $("#user-name-shipping").val();
+      let userLastNameShipping = $("#user-lastname-shipping").val();
+      let userAddressShipping01 = $("#shipping-addrs-01").val();
+      let userAddressShipping02 = $("#shipping-addrs-02").val();
+      let userCityShipping = $("#city-shipping").val();
+      let userProvinceShipping = $("#province-state-shipping").val();
+      let userCountryShipping = $("#country-shipping").val();
+      let userPostalCodeShipping = $("#postal-code-shipping").val();
+
+      shippingAddress = {
+        first_name: userNameShipping,
+        last_name: userLastNameShipping,
+        address_1: userAddressShipping01,
+        address_2: userAddressShipping02,
+        city: userCityShipping,
+        province: userProvinceShipping,
+        country: userCountryShipping,
+        postal: userPostalCodeShipping,
+      };
+    }
+    console.log(currency);
+    let submission_data = {
+      card_number: creditCardNumber,
+      expiry_month: expMonth,
+      expiry_year: expYear,
+      security_code: securityCode,
+      amount: totalAmountOrder,
+      taxes: totalTaxes,
+      shipping_amount: totalShipping,
+      currency: currency,
+      items: itemsToSenc,
+      billing: billingAddress,
+      shipping: shippingAddress,
+    };
+    console.log(submission_data);
     let form_data = new FormData();
     form_data.append("submission", JSON.stringify(submission_data));
     // where 'submission_data' is your JS object.
@@ -874,10 +940,48 @@ class Catalog {
     })
       .then((response) => response.json())
       .then((data) => {
-        for (const property in data) {
-          console.log(data[property]);
+        console.log(data);
+        if (data.status === "NOT SUBMITTED") {
+          let errors = data.error;
+          let index = 0;
+          let errorMessages = [];
+          for (const property in errors) {
+            if (typeof errors[property] === "object") {
+              for (const moreErrors in errors[property]) {
+                errorMessages[index] = errors[property][moreErrors];
+                index++;
+              }
+            }
+            errorMessages[index] = errors[property];
+            index++;
+          }
+          this.createInvalidModal(errorMessages[0]);
+        } else {
+          this.addCloseHandler();
+          this.createValidModal();
         }
       });
+  }
+  createValidModal() {
+    let headerMessage = `<span><svg xmlns="http://www.w3.org/2000/svg" style="height:2rem;" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg></span> Sucess`;
+    $("#feedback-header").removeClass("alert-danger");
+
+    $("#feedback-header").addClass("alert");
+    $("#feedback-header").addClass("alert-success");
+    $("#feedback-title").html(headerMessage);
+    $("#feedback-body").html("Your order has been successfully placed");
+  }
+  createInvalidModal(error) {
+    let headerMessage = `<span><svg xmlns="http://www.w3.org/2000/svg" style="height:2rem;"class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg></span> Error`;
+    let messageBody = error;
+    $("#feedback-header").addClass("alert");
+    $("#feedback-header").addClass("alert-danger");
+    $("#feedback-title").html(headerMessage);
+    $("#feedback-body").html(messageBody);
   }
   submitButton() {
     $("#shipping-checkbox").change(() => {
@@ -930,23 +1034,9 @@ class Catalog {
         this.submitData();
       } else {
         if (this.validatePhoneAndPc[0] === false) {
-          let headerMessage = `<span><svg xmlns="http://www.w3.org/2000/svg" style="height: 2rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg></span> Error`;
-          let messageBody = "Invalid phone number";
-          $("#feedback-header").addClass("alert");
-          $("#feedback-header").addClass("alert-danger");
-          $("#feedback-title").html(headerMessage);
-          $("#feedback-body").html(messageBody);
+          this.createInvalidModal("Please enter all your information");
         } else {
-          let headerMessage = `<span><svg xmlns="http://www.w3.org/2000/svg" style="height: 2rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg></span> Error`;
-          let messageBody = "Invalid postal code or zip number";
-          $("#feedback-header").addClass("alert");
-          $("#feedback-header").addClass("alert-danger");
-          $("#feedback-title").html(headerMessage);
-          $("#feedback-body").html(messageBody);
+          this.createInvalidModal("Please enter all your information");
         }
       }
     });
