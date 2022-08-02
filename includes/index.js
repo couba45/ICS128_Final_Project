@@ -137,10 +137,14 @@ class Catalog {
       */
   }
   useCookies() {
-    if (!jQuery.isEmptyObject(get_cookie("shopping_cart_list"))) {
+    if (jQuery.isEmptyObject(get_cookie("shopping_cart_items"))) {
+      return;
+    }
+    if (get_cookie("shopping_cart_items") !== null) {
       this.setCounter();
       $("#button-container").removeClass("d-none");
       $("#button-container").addClass("d-flex");
+      $("#dummy-text").hide();
     }
   }
   addGeocoder() {
@@ -322,6 +326,13 @@ class Catalog {
       $("#expiration-month").removeClass("is-valid");
       let tooltip = new bootstrap.Tooltip("#expiration-month", {
         title: "Invalid month",
+      });
+      return false;
+    } else if (expireMonth == 0) {
+      $("#expiration-month").addClass("is-invalid");
+      $("#expiration-month").removeClass("is-valid");
+      let tooltip = new bootstrap.Tooltip("#expiration-month", {
+        title: "Please enter expiration month",
       });
       return false;
     } else {
@@ -858,6 +869,9 @@ class Catalog {
 
     let creditCardNumber = $("#card-number").val().split(" ").join("");
     let expMonth = "0" + $("#expiration-month").val();
+    if ($("#expiration-month").val() == 0) {
+      expMonth = "";
+    }
     let expYear = $("#expiration-year").val();
     let securityCode = $("#security-code").val();
     let userName = $("#user-name").val();
@@ -1192,7 +1206,6 @@ class Catalog {
   add_event_handler() {
     this.addGeocoder();
     // get total price
-
     // event handler
     $(".add-cart").click((e) => {
       $("#dummy-text").hide();
