@@ -5,19 +5,17 @@
 }
 
 #loading {
-  width: 4rem;
-  height: 4rem;
-  border: 9px solid #f3f3f3;
+  display: none;
+  width: 6rem;
+  height: 6rem;
+  border: 9px solid #d1d1d1;
   border-top: 6px solid #0239ff;
   border-radius: 100%;
   margin: auto;
-  visibility: hidden;
-  animation: spin 1s infinite linear;
+  animation: loadingSpin 1s infinite linear;
 }
-#loading.display {
-  visibility: visible;
-}
-@keyframes spin {
+
+@keyframes loadingSpin {
   from {
     transform: rotate(0deg);
   }

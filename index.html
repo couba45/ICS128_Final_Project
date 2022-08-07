@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bootstrap demo</title>
+    <title>ICS128 Final Project</title>
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
@@ -46,13 +46,16 @@
             ></button>
           </div>
           <div class="offcanvas-body">
+            <!-- This text will appear in the shopping cart if no items where selected -->
             <div id="dummy-text" class="mb-3">
               Your shopping cart is currently empty
             </div>
-            <div class="input-group mb-3">
+            <!-- This is the currency changer block-->
+            <div id="currency-changer" class="input-group mb-3">
               <label class="input-group-text" for="input-currency"
-                >Currency:</label
+                >Currency</label
               >
+              <!--Each option in the currency changer has a value with their respective currency abbreviation for convinience-->
               <select class="form-select" id="input-currency">
                 <option value="cad" selected>Canadian $</option>
                 <option value="usd">United States $</option>
@@ -60,7 +63,9 @@
               </select>
             </div>
 
+            <!--In this table all the selected items will be rendered-->
             <div id="table-container"></div>
+            <!--The delete all and continue button are contained here-->
             <div
               id="button-container"
               class="w-100 d-none justify-content-between"
@@ -68,7 +73,9 @@
               <button id="delete-all-items" class="btn btn-warning">
                 Delete all items
               </button>
+              <!--The continue button links to a modal which is the checkout process-->
               <button
+                id="checkout-modal"
                 type="button"
                 class="btn btn-success"
                 data-bs-toggle="modal"
@@ -81,6 +88,7 @@
         </div>
       </div>
     </nav>
+    <!--This is the loading screen-->
     <div
       id="loading-container"
       class="mt-5 container h-screen d-flex justify-content-between align-items-center"
@@ -88,6 +96,7 @@
     >
       <div id="loading"></div>
     </div>
+    <!--Cheackout Modal-->
     <div
       class="modal fade modal-lg"
       id="exampleModal"
@@ -97,6 +106,7 @@
     >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+          <!--Modal Header-->
           <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Checkout</h5>
             <button
@@ -106,12 +116,15 @@
               aria-label="Close"
             ></button>
           </div>
+          <!--Modal body-->
           <div class="modal-body">
+            <!--List of tabs-->
             <ul
               class="nav nav-pills mb-3 gap-1 justify-content-around"
               id="pills-tab"
               role="tablist"
             >
+              <!--Payment Tab-->
               <li class="nav-item" role="presentation">
                 <button
                   class="nav-link active"
@@ -141,15 +154,16 @@
                   <span class="d-none d-md-inline">Payment Method</span>
                 </button>
               </li>
+              <!--Billing Tab-->
               <li class="nav-item" role="presentation">
                 <button
                   class="nav-link"
-                  id="pills-profile-tab"
+                  id="pills-billing-tab"
                   data-bs-toggle="pill"
-                  data-bs-target="#pills-profile"
+                  data-bs-target="#pills-billing-address"
                   type="button"
                   role="tab"
-                  aria-controls="pills-profile"
+                  aria-controls="pills-billing-address"
                   aria-selected="false"
                 >
                   <svg
@@ -171,15 +185,16 @@
                   <span class="d-none d-md-inline">Billing Details</span>
                 </button>
               </li>
+              <!--Shipping Tab-->
               <li class="nav-item" role="presentation">
                 <button
                   class="nav-link"
-                  id="pills-contact-tab"
+                  id="pills-shipping-tab"
                   data-bs-toggle="pill"
-                  data-bs-target="#pills-contact"
+                  data-bs-target="#pills-shipping"
                   type="button"
                   role="tab"
-                  aria-controls="pills-contact"
+                  aria-controls="pills-"
                   aria-selected="false"
                 >
                   <svg
@@ -203,6 +218,7 @@
                   <span class="d-none d-md-inline">Shipping Details</span>
                 </button>
               </li>
+              <!--Order Confirmation Tab-->
               <li class="nav-item" role="presentation">
                 <button
                   class="nav-link"
@@ -233,6 +249,7 @@
                 </button>
               </li>
             </ul>
+            <!--Content of each tab-->
             <div class="tab-content" id="pills-tabContent">
               <div
                 class="tab-pane fade show active"
@@ -241,6 +258,7 @@
                 aria-labelledby="pills-home-tab"
                 tabindex="0"
               >
+                <!--Payment Section-->
                 <h1 class="mb-4">Payment Method</h1>
                 <form id="payment-details" class="row g-3">
                   <div class="col-md-12">
@@ -260,6 +278,7 @@
                     >
                     <div class="row">
                       <div class="col-md-6 mb-3">
+                        <!--The expiration month select input will range from 0 to 12 where 0 means the user did not select a month-->
                         <select
                           class="form-select"
                           id="expiration-month"
@@ -281,19 +300,16 @@
                         </select>
                       </div>
                       <div class="col-md-6">
+                        <!--Expiration years which will be rendered with javascript-->
                         <select
                           class="form-select"
                           id="expiration-year"
                           aria-label="Floating label select example"
-                        >
-                          <option value="2022">2022</option>
-                          <option value="2023">2023</option>
-                          <option value="2024">2024</option>
-                        </select>
+                        ></select>
                       </div>
                     </div>
                   </div>
-
+                  <!--Security Code-->
                   <div class="col-md-4">
                     <label for="security-code" class="form-label"
                       >Security Code</label
@@ -305,6 +321,7 @@
                       placeholder="123"
                     />
                   </div>
+                  <!--This button will make possible submit the form-->
                   <button class="d-none"></button>
                 </form>
                 <div class="modal-footer">
@@ -313,9 +330,10 @@
                   </button>
                 </div>
               </div>
+              <!--Billing Information-->
               <div
                 class="tab-pane fade"
-                id="pills-profile"
+                id="pills-billing-address"
                 role="tabpanel"
                 aria-labelledby="billing-button"
                 tabindex="0"
@@ -346,6 +364,11 @@
                     <label for="billing-addrs-01" class="form-label"
                       >Billing Address</label
                     >
+                    <!--
+                      For the autocomplete to work I needed the billing address input to have the id of the other input fields where the
+                      address information will go. All the data attributes store the id of the input field in the billing form so i can change their
+                      values with the autocomplete
+                    -->
                     <input
                       type="text"
                       id="billing-addrs-01"
@@ -381,6 +404,10 @@
                     />
                   </div>
                   <div class="col-md-6 mb-3">
+                    <!--
+                      The province/state input links to one datalist however if the user choose the US as a country then the list attribute in this input field will
+                      link to the other datalist
+                    -->
                     <label for="province-state" class="form-label"
                       >Province/State</label
                     >
@@ -391,6 +418,7 @@
                       class="form-control provinces"
                       placeholder="Province"
                     />
+                    <!--Canadian provinces datalist-->
                     <datalist id="provinces-opts">
                       <option value="AB">Alberta</option>
                       <option value="BC">British Columbia</option>
@@ -406,6 +434,7 @@
                       <option value="MB">Manitoba</option>
                       <option value="SK">Saskatchewan</option>
                     </datalist>
+                    <!--US states datalist-->
                     <datalist class="d-none" id="provinces-us-opts">
                       <option value="AL">Alabama</option>
                       <option value="AK">Alaska</option>
@@ -466,8 +495,12 @@
                       <option value="WY">Wyoming</option>
                     </datalist>
                   </div>
+                  <!--Country select input-->
                   <div class="col-md-6 mb-3">
                     <label for="country" class="form-label">Country</label>
+                    <!--
+                      The select input also has data attributes since if this changes then the province/state input will show another datalist
+                    -->
                     <select
                       class="form-select city-user"
                       aria-label="Default select example"
@@ -481,6 +514,7 @@
                       <option value="US">United States</option>
                     </select>
                   </div>
+                  <!--Postal code-->
                   <div class="col-md-6 mb-3">
                     <label for="postal-code" class="form-label"
                       >Postal Code/ZIP</label
@@ -492,6 +526,7 @@
                       placeholder="V1V 1V1 / 12345"
                     />
                   </div>
+                  <!--Phone number-->
                   <div class="col-md-12 mb-3">
                     <label for="user-phone" class="form-label">Phone</label>
                     <input
@@ -502,6 +537,7 @@
                       placeholder="(250) 555-1234"
                     />
                   </div>
+                  <!--Email-->
                   <div class="col-md-12 mb-5">
                     <label for="user-email" class="form-label"
                       >Email Address</label
@@ -514,22 +550,26 @@
                       placeholder="name@example.com"
                     />
                   </div>
+                  <!--dummy button for submitting pursposes-->
                   <button class="d-none"></button>
                 </form>
+                <!--It will validate and link to the next tab-->
                 <div class="modal-footer">
                   <button id="validate-billing-addrs" class="btn btn-primary">
                     Continue
                   </button>
                 </div>
               </div>
+              <!--Shipping Inforamtion-->
               <div
                 class="tab-pane fade"
-                id="pills-contact"
+                id="pills-shipping"
                 role="tabpanel"
-                aria-labelledby="pills-contact-tab"
+                aria-labelledby="pills-shipping-tab"
                 tabindex="0"
               >
                 <h1 class="mb-3">Shipping Information</h1>
+                <!--This checkbox is checked by default but if is unchecked the shipping form will be shown-->
                 <input
                   class="form-check-input mb-5"
                   type="checkbox"
@@ -540,6 +580,7 @@
                 <label class="form-check-label" for="shipping-checkbox">
                   Shipping information is the same as my Billing Details
                 </label>
+                <!--Shipping form-->
                 <form id="shipping-address" class="row d-none mb-5">
                   <div class="col-md-6 mb-3">
                     <label for="user-name-shipping" class="form-label"
@@ -567,6 +608,10 @@
                     <label for="shipping-addrs-01" class="form-label"
                       >Billing Address</label
                     >
+                    <!--
+                      The same concept as the billing address, we are storing all the input fields of these form in data attributes so that the autocomplete can
+                      fill the values for those respective input fields
+                    -->
                     <input
                       type="text"
                       id="shipping-addrs-01"
@@ -606,6 +651,7 @@
                     <label for="province-state-shipping" class="form-label"
                       >Province/State</label
                     >
+                    <!--If user choses the US as a country the the list attibute will link to the other datalist-->
                     <input
                       type="text"
                       name=""
@@ -614,6 +660,7 @@
                       class="form-control provinces"
                       placeholder="Province"
                     />
+                    <!--Canadian Provinces-->
                     <datalist id="provinces-opts-shipping">
                       <option value="AB">Alberta</option>
                       <option value="BC">British Columbia</option>
@@ -629,6 +676,7 @@
                       <option value="MB">Manitoba</option>
                       <option value="SK">Saskatchewan</option>
                     </datalist>
+                    <!--US states-->
                     <datalist class="d-none" id="provinces-us-opts-shipping">
                       <option value="AL">Alabama</option>
                       <option value="AK">Alaska</option>
@@ -693,6 +741,9 @@
                     <label for="country-shipping" class="form-label"
                       >Country</label
                     >
+                    <!--
+                      Country will have the functionality that if it changes then the datalist will change. Therefore, it should know both datalist ids
+                    -->
                     <select
                       class="form-select city-user"
                       aria-label="Default select example"
@@ -706,6 +757,7 @@
                       <option value="US">United States</option>
                     </select>
                   </div>
+                  <!--Postal code-->
                   <div class="col-md-6 mb-3">
                     <label for="postal-code-shipping" class="form-label"
                       >Postal Code/ZIP</label
@@ -717,6 +769,7 @@
                       placeholder="V1V 1V1 / 12345"
                     />
                   </div>
+                  <!--dummy text-->
                   <button class="d-none"></button>
                 </form>
                 <div class="modal-footer">
@@ -728,6 +781,7 @@
                   </button>
                 </div>
               </div>
+              <!--Order Confirmation-->
               <div
                 class="tab-pane fade"
                 id="pills-disabled"
@@ -738,6 +792,7 @@
                 <h1 class="mb-3">Order Details</h1>
                 <table class="table mb-5" id="final-table"></table>
                 <div class="modal-footer">
+                  <!--This button will send the user information gathered through the checkout to the server-->
                   <button
                     id="send-order"
                     class="btn btn-primary"
@@ -763,9 +818,12 @@
         </div>
       </div>
     </div>
+    <!--This modal will show whether or not an error occured while sending the information-->
     <div
       class="modal fade"
       id="feedback"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
       tabindex="-1"
       aria-labelledby="exampleModalLabel"
       aria-hidden="true"
@@ -776,12 +834,6 @@
             <h5 id="feedback-title" class="modal-title" id="exampleModalLabel">
               Modal title
             </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
           </div>
           <div class="modal-body" id="feedback-body">
             THis is a test that it works
@@ -799,7 +851,9 @@
         </div>
       </div>
     </div>
+    <!--Items Container-->
     <div class="container mt-5 pt-5">
+      <!--The items will be rendered here-->
       <div
         id="items"
         class="row"
